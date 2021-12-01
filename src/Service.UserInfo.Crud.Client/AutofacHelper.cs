@@ -11,7 +11,7 @@ namespace Service.UserInfo.Crud.Client
         {
             var factory = new UserInfoCrudClientFactory(grpcServiceUrl);
 
-            builder.RegisterInstance(factory.GetHelloService()).As<IHelloService>().SingleInstance();
+            builder.RegisterInstance(factory.GetUserInfoService()).As<IUserInfoService>().SingleInstance();
         }
     }
 }

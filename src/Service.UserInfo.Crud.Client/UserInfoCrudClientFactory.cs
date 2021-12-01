@@ -11,6 +11,6 @@ namespace Service.UserInfo.Crud.Client
         {
         }
 
-        public IHelloService GetHelloService() => CreateGrpcService<IHelloService>();
+        public IUserInfoService GetUserInfoService() => CreateGrpcService<IUserInfoService>();
     }
 }

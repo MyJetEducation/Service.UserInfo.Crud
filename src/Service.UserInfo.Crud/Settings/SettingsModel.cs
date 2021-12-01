@@ -13,5 +13,8 @@ namespace Service.UserInfo.Crud.Settings
 
         [YamlProperty("UserInfo.Crud.ElkLogs")]
         public LogElkSettings ElkLogs { get; set; }
+
+        [YamlProperty("UserInfo.Crud.PostgresConnectionString")]
+        public string PostgresConnectionString { get; set; }
     }
 }

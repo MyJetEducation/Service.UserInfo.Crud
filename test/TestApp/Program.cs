@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using ProtoBuf.Grpc.Client;
 using Service.UserInfo.Crud.Client;
 using Service.UserInfo.Crud.Grpc;
-using Service.UserInfo.Crud.Grpc.Models;
+using Service.UserInfo.Crud.Grpc.Contracts;
 
 namespace TestApp
 {
@@ -16,12 +17,14 @@ namespace TestApp
 			Console.Write("Press enter to start");
 			Console.ReadLine();
 
+			var factory = new UserInfoCrudClientFactory("http://localhost:80");
+			IUserInfoService client = factory.GetUserInfoService();
 
-			var factory = new UserInfoCrudClientFactory("http://localhost:5001");
-			IHelloService client = factory.GetHelloService();
+			UserInfoResponse userInfoResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user", Password = "123"});
+			Console.WriteLine(JsonSerializer.Serialize(userInfoResponse1));
 
-			HelloMessage resp = await client.SayHelloAsync(new HelloRequest {Name = "Alex"});
-			Console.WriteLine(resp?.Message);
+			UserInfoResponse userInfoResponse2 = await client.GetUserInfoByTokenAsync(new UserInfoTokenRequest {RefreshToken = "token"});
+			Console.WriteLine(JsonSerializer.Serialize(userInfoResponse2));
 
 			Console.WriteLine("End");
 			Console.ReadLine();
