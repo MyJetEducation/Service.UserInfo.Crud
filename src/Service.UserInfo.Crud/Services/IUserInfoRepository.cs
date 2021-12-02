@@ -6,8 +6,8 @@ namespace Service.UserInfo.Crud.Services
 {
 	public interface IUserInfoRepository
 	{
-		Task<UserInfoEntity> GetUserInfoAsync(string userName);
+		ValueTask<UserInfoEntity> GetUserInfoAsync(string userName);
 
-		Task UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires);
+		ValueTask<bool> UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires);
 	}
 }

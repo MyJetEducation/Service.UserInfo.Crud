@@ -20,22 +20,25 @@ namespace TestApp
 			var factory = new UserInfoCrudClientFactory("http://localhost:5001");
 			IUserInfoService client = factory.GetUserInfoService();
 
-			UserAuthInfoResponse userInfoResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user"});
-			Console.WriteLine(JsonSerializer.Serialize(userInfoResponse1));
+			UserAuthInfoResponse getResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user"});
+			Console.WriteLine(JsonSerializer.Serialize(getResponse1));
 
-			Task updateTask = client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
+			UpdateUserTokenResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
 			{
-				UserName = "user", 
-				JwtToken = Guid.NewGuid().ToString(), 
-				RefreshToken = Guid.NewGuid().ToString(), 
+				UserName = "user",
+				JwtToken = Guid.NewGuid().ToString(),
+				RefreshToken = Guid.NewGuid().ToString(),
 				RefreshTokenExpires = DateTime.Now
 			});
 
-			updateTask.Wait();
-
-			UserAuthInfoResponse userInfoResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user"});
-			Console.WriteLine(JsonSerializer.Serialize(userInfoResponse2));
-
+			if (!updateResponse.IsSuccess)
+				Console.WriteLine("Unable to execute UpdateUserTokenInfoAsync");
+			else
+			{
+				UserAuthInfoResponse getResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user"});
+				Console.WriteLine(JsonSerializer.Serialize(getResponse2));
+			}
+			
 			Console.WriteLine("End");
 			Console.ReadLine();
 		}

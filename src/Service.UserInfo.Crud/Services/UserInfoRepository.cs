@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Npgsql;
 using Service.UserInfo.Crud.Postgres;
 using Service.UserInfo.Crud.Postgres.Models;
 
@@ -20,29 +19,27 @@ namespace Service.UserInfo.Crud.Services
 			_logger = logger;
 		}
 
-		public async Task<UserInfoEntity> GetUserInfoAsync(string userName)
+		public async ValueTask<UserInfoEntity> GetUserInfoAsync(string userName)
 		{
 			try
 			{
-				return await GetContext().UserInfos.FirstOrDefaultAsync(entity => entity.UserName == userName);
+				return await GetContext()
+					.UserInfos
+					.FirstOrDefaultAsync(entity => entity.UserName == userName);
 			}
-			catch (NpgsqlException exception)
+			catch (Exception exception)
 			{
 				_logger.LogError(exception, exception.Message);
-				throw;
 			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, e.Message);
-				throw;
-			}
+
+			return await ValueTask.FromResult<UserInfoEntity>(null);
 		}
 
-		public async Task UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires)
+		public async ValueTask<bool> UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires)
 		{
 			UserInfoEntity userInfo = await GetUserInfoAsync(userName);
 			if (userInfo == null)
-				return;
+				return false;
 
 			userInfo.JwtToken = jwtToken;
 			userInfo.RefreshToken = refreshToken;
@@ -57,17 +54,15 @@ namespace Service.UserInfo.Crud.Services
 					.Update(userInfo);
 
 				await _context.SaveChangesAsync();
+
+				return true;
 			}
-			catch (NpgsqlException exception)
+			catch (Exception exception)
 			{
 				_logger.LogError(exception, exception.Message);
-				throw;
 			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, e.Message);
-				throw;
-			}
+
+			return false;
 		}
 
 		private DatabaseContext GetContext() => DatabaseContext.Create(_dbContextOptionsBuilder);
