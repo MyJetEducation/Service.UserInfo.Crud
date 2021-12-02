@@ -65,6 +65,34 @@ namespace Service.UserInfo.Crud.Services
 			return false;
 		}
 
+		public async ValueTask<bool> CreateUserInfo(string userName, string password)
+		{
+			try
+			{
+				_context = GetContext();
+
+				await _context
+					.UserInfos
+					.AddAsync(new UserInfoEntity
+					{
+						Id = Guid.NewGuid(),
+						UserName = userName,
+						Password = password,
+						Role = "default"
+					});
+
+				await _context.SaveChangesAsync();
+
+				return true;
+			}
+			catch (Exception exception)
+			{
+				_logger.LogError(exception, exception.Message);
+			}
+
+			return false;
+		}
+
 		private DatabaseContext GetContext() => DatabaseContext.Create(_dbContextOptionsBuilder);
 	}
 }

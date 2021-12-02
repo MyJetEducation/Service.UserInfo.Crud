@@ -20,26 +20,41 @@ namespace TestApp
 			var factory = new UserInfoCrudClientFactory("http://localhost:5001");
 			IUserInfoService client = factory.GetUserInfoService();
 
-			UserAuthInfoResponse getResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user"});
+			var userName = $"user-{DateTime.UtcNow:HHmmss}";
+			Console.WriteLine($"{Environment.NewLine}Creating UserInfo {userName}.");
+			CommonResponse createResponse = await client.CreateUserInfo(new UserInfoRegisterRequest {UserName = userName, Password = "123"});
+			if (!createResponse.IsSuccess)
+			{
+				Console.WriteLine("Error! Unable to execute CreateUserInfo");
+				Console.ReadLine();
+			}
+			else
+				Console.WriteLine("Success.");
+
+			Console.WriteLine($"{Environment.NewLine}Retrieving (1) UserInfo for {userName}");
+			UserAuthInfoResponse getResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = userName});
 			Console.WriteLine(JsonSerializer.Serialize(getResponse1));
 
-			UpdateUserTokenResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
+			Console.WriteLine($"{Environment.NewLine}Updating token info for {userName}.");
+			CommonResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
 			{
-				UserName = "user",
+				UserName = userName,
 				JwtToken = Guid.NewGuid().ToString(),
 				RefreshToken = Guid.NewGuid().ToString(),
 				RefreshTokenExpires = DateTime.Now
 			});
 
 			if (!updateResponse.IsSuccess)
-				Console.WriteLine("Unable to execute UpdateUserTokenInfoAsync");
+				Console.WriteLine("Error! Unable to execute UpdateUserTokenInfoAsync");
 			else
 			{
-				UserAuthInfoResponse getResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user"});
+				Console.WriteLine("Success.");
+
+				Console.WriteLine($"{Environment.NewLine}Retrieving (2) UserInfo for {userName}");
+				UserAuthInfoResponse getResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = userName});
 				Console.WriteLine(JsonSerializer.Serialize(getResponse2));
 			}
-			
-			Console.WriteLine("End");
+
 			Console.ReadLine();
 		}
 	}

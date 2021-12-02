@@ -18,11 +18,18 @@ namespace Service.UserInfo.Crud.Services
 			return userInfo.ToGrpcModel();
 		}
 
-		public async ValueTask<UpdateUserTokenResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
+		public async ValueTask<CommonResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
 		{
 			bool isSuccess = await _userInfoRepository.UpdateUserTokenInfoAsync(request.UserName, request.JwtToken, request.RefreshToken, request.RefreshTokenExpires);
 
-			return new UpdateUserTokenResponse {IsSuccess = isSuccess};
+			return new CommonResponse {IsSuccess = isSuccess};
+		}
+
+		public async ValueTask<CommonResponse> CreateUserInfo(UserInfoRegisterRequest request)
+		{
+			bool isSuccess = await _userInfoRepository.CreateUserInfo(request.UserName, request.Password);
+
+			return new CommonResponse {IsSuccess = isSuccess};
 		}
 	}
 }
