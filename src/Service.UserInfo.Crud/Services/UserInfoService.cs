@@ -18,6 +18,13 @@ namespace Service.UserInfo.Crud.Services
 			return userInfo.ToGrpcModel();
 		}
 
+		public async ValueTask<UserIdResponse> GetUserIdAsync(UserInfoLoginRequest request)
+		{
+			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoAsync(request.UserName);
+
+			return new UserIdResponse {UserId = userInfo?.Id};
+		}
+
 		public async ValueTask<CommonResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
 		{
 			bool isSuccess = await _userInfoRepository.UpdateUserTokenInfoAsync(request.UserName, request.JwtToken, request.RefreshToken, request.RefreshTokenExpires);

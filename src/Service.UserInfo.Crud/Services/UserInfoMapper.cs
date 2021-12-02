@@ -12,6 +12,7 @@ namespace Service.UserInfo.Crud.Services
 				UserAuthInfo = userInfo != null
 					? new UserAuthInfoGrpcModel
 					{
+						UserId = userInfo.Id,
 						Password = userInfo.Password,
 						Role = userInfo.Role,
 						RefreshToken = userInfo.RefreshToken,

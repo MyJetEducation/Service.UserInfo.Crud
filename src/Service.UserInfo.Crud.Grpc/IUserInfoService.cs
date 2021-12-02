@@ -11,6 +11,9 @@ namespace Service.UserInfo.Crud.Grpc
 		ValueTask<UserAuthInfoResponse> GetUserInfoByLoginAsync(UserInfoLoginRequest request);
 
 		[OperationContract]
+		ValueTask<UserIdResponse> GetUserIdAsync(UserInfoLoginRequest request);
+
+		[OperationContract]
 		ValueTask<CommonResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request);
 
 		[OperationContract]

@@ -31,6 +31,10 @@ namespace TestApp
 			else
 				Console.WriteLine("Success.");
 
+			Console.WriteLine($"{Environment.NewLine}Retrieving UserId for {userName}");
+			UserIdResponse userIdResponse = await client.GetUserIdAsync(new UserInfoLoginRequest { UserName = userName });
+			Console.WriteLine(userIdResponse.UserId);
+
 			Console.WriteLine($"{Environment.NewLine}Retrieving (1) UserInfo for {userName}");
 			UserAuthInfoResponse getResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = userName});
 			Console.WriteLine(JsonSerializer.Serialize(getResponse1));
