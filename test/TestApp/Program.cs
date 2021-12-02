@@ -40,11 +40,12 @@ namespace TestApp
 			LogData(getResponse1);
 
 			Console.WriteLine($"{Environment.NewLine}Updating token info for {userName}.");
+			var refreshToken = Guid.NewGuid().ToString();
 			CommonResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
 			{
 				UserName = userName,
 				JwtToken = Guid.NewGuid().ToString(),
-				RefreshToken = Guid.NewGuid().ToString(),
+				RefreshToken = refreshToken,
 				RefreshTokenExpires = DateTime.Now
 			});
 
@@ -54,9 +55,13 @@ namespace TestApp
 			{
 				Console.WriteLine("Success.");
 
-				Console.WriteLine($"{Environment.NewLine}Retrieving (2) UserInfo for {userName}");
+				Console.WriteLine($"{Environment.NewLine}Retrieving (2) UserInfo by name {userName}");
 				UserAuthInfoResponse getResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = userName});
 				LogData(getResponse2);
+
+				Console.WriteLine($"{Environment.NewLine}Retrieving (3) UserInfo by refreshToken {refreshToken}");
+				UserAuthInfoResponse getResponse3 = await client.GetUserInfoByTokenAsync(new UserInfoTokenRequest {RefreshToken = refreshToken});
+				LogData(getResponse3);
 			}
 
 			Console.ReadLine();
