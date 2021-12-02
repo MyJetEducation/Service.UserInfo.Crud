@@ -1,12 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Service.UserInfo.Crud.Postgres.Models;
 
 namespace Service.UserInfo.Crud.Services
 {
 	public interface IUserInfoRepository
 	{
-		Task<UserInfoEntity> GetUserInfoAsync(string userName, string password);
+		Task<UserInfoEntity> GetUserInfoAsync(string userName);
 
-		Task<UserInfoEntity> GetUserInfoAsync(string refreshToken);
+		Task UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires);
 	}
 }

@@ -12,6 +12,7 @@ namespace Service.UserInfo.Crud.Services
 	{
 		private readonly DbContextOptionsBuilder<DatabaseContext> _dbContextOptionsBuilder;
 		private readonly ILogger<UserInfoRepository> _logger;
+		private DatabaseContext _context;
 
 		public UserInfoRepository(DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder, ILogger<UserInfoRepository> logger)
 		{
@@ -19,13 +20,11 @@ namespace Service.UserInfo.Crud.Services
 			_logger = logger;
 		}
 
-		public async Task<UserInfoEntity> GetUserInfoAsync(string userName, string password)
+		public async Task<UserInfoEntity> GetUserInfoAsync(string userName)
 		{
 			try
 			{
-				return await GetContext()
-					.UserInfos
-					.FirstOrDefaultAsync(entity => entity.UserName == userName && entity.Password == password);
+				return await GetContext().UserInfos.FirstOrDefaultAsync(entity => entity.UserName == userName);
 			}
 			catch (NpgsqlException exception)
 			{
@@ -39,13 +38,25 @@ namespace Service.UserInfo.Crud.Services
 			}
 		}
 
-		public async Task<UserInfoEntity> GetUserInfoAsync(string refreshToken)
+		public async Task UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires)
 		{
+			UserInfoEntity userInfo = await GetUserInfoAsync(userName);
+			if (userInfo == null)
+				return;
+
+			userInfo.JwtToken = jwtToken;
+			userInfo.RefreshToken = refreshToken;
+			userInfo.RefreshTokenExpires = refreshTokenExpires;
+
 			try
 			{
-				return await GetContext()
+				_context = GetContext();
+
+				_context
 					.UserInfos
-					.FirstOrDefaultAsync(entity => entity.RefreshToken != null && entity.RefreshToken == refreshToken);
+					.Update(userInfo);
+
+				await _context.SaveChangesAsync();
 			}
 			catch (NpgsqlException exception)
 			{

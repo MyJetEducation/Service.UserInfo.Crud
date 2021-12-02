@@ -11,18 +11,14 @@ namespace Service.UserInfo.Crud.Services
 
 		public UserInfoService(IUserInfoRepository userInfoRepository) => _userInfoRepository = userInfoRepository;
 
-		public async ValueTask<UserInfoResponse> GetUserInfoByLoginAsync(UserInfoLoginRequest request)
+		public async ValueTask<UserAuthInfoResponse> GetUserInfoByLoginAsync(UserInfoLoginRequest request)
 		{
-			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoAsync(request.UserName, request.Password);
+			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoAsync(request.UserName);
 
 			return userInfo.ToGrpcModel();
 		}
 
-		public async ValueTask<UserInfoResponse> GetUserInfoByTokenAsync(UserInfoTokenRequest request)
-		{
-			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoAsync(request.RefreshToken);
-
-			return userInfo.ToGrpcModel();
-		}
+		public Task UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request) => 
+			_userInfoRepository.UpdateUserTokenInfoAsync(request.UserName, request.JwtToken, request.RefreshToken, request.RefreshTokenExpires);
 	}
 }

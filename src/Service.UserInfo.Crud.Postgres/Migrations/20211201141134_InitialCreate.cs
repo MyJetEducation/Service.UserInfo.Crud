@@ -18,7 +18,6 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Sex = table.Column<bool>(type: "boolean", nullable: true),
@@ -33,13 +32,6 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                 {
                     table.PrimaryKey("PK_userinfo", x => x.Id);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_userinfo_Email",
-                schema: "education",
-                table: "userinfo",
-                column: "Email",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_userinfo_Id",

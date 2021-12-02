@@ -20,9 +20,7 @@ namespace Service.UserInfo.Crud.Postgres
 		{
 			MyTelemetry.StartActivity($"Database context {Schema}")?.AddTag("db-schema", Schema);
 
-			var ctx = new DatabaseContext(options.Options);
-
-			return ctx;
+			return new DatabaseContext(options.Options);
 		}
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,7 +36,6 @@ namespace Service.UserInfo.Crud.Postgres
 		{
 			modelBuilder.Entity<UserInfoEntity>().ToTable(UserInfoTableName);
 			modelBuilder.Entity<UserInfoEntity>().HasKey(e => e.Id);
-			modelBuilder.Entity<UserInfoEntity>().Property(e => e.Email).IsRequired().HasMaxLength(100);
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.FirstName).IsRequired(false).HasMaxLength(100);
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.LastName).IsRequired(false).HasMaxLength(100);
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.Sex).IsRequired(false);
@@ -49,7 +46,6 @@ namespace Service.UserInfo.Crud.Postgres
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.RefreshToken).IsRequired(false).HasMaxLength(100);
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.RefreshTokenExpires).IsRequired(false);
 			modelBuilder.Entity<UserInfoEntity>().HasIndex(e => e.Id).IsUnique();
-			modelBuilder.Entity<UserInfoEntity>().HasIndex(e => e.Email).IsUnique();
 			modelBuilder.Entity<UserInfoEntity>().HasIndex(e => e.UserName).IsUnique();
 		}
 	}

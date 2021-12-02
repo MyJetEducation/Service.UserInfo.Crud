@@ -1,11 +1,12 @@
 using System.Runtime.Serialization;
+using Service.UserInfo.Crud.Grpc.Models;
 
 namespace Service.UserInfo.Crud.Grpc.Contracts
 {
 	[DataContract]
-	public class UserInfoLoginRequest
+	public class UserAuthInfoResponse
 	{
 		[DataMember(Order = 1)]
-		public string UserName { get; set; }
+		public UserAuthInfoGrpcModel UserAuthInfo { get; set; }
 	}
 }

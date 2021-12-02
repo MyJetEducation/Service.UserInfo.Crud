@@ -10,20 +10,30 @@ namespace TestApp
 {
 	internal class Program
 	{
-		private static async Task Main(string[] args)
+		private static async Task Main()
 		{
 			GrpcClientFactory.AllowUnencryptedHttp2 = true;
 
 			Console.Write("Press enter to start");
 			Console.ReadLine();
 
-			var factory = new UserInfoCrudClientFactory("http://localhost:80");
+			var factory = new UserInfoCrudClientFactory("http://localhost:5001");
 			IUserInfoService client = factory.GetUserInfoService();
 
-			UserInfoResponse userInfoResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user", Password = "123"});
+			UserAuthInfoResponse userInfoResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user"});
 			Console.WriteLine(JsonSerializer.Serialize(userInfoResponse1));
 
-			UserInfoResponse userInfoResponse2 = await client.GetUserInfoByTokenAsync(new UserInfoTokenRequest {RefreshToken = "token"});
+			Task updateTask = client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
+			{
+				UserName = "user", 
+				JwtToken = Guid.NewGuid().ToString(), 
+				RefreshToken = Guid.NewGuid().ToString(), 
+				RefreshTokenExpires = DateTime.Now
+			});
+
+			updateTask.Wait();
+
+			UserAuthInfoResponse userInfoResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = "user"});
 			Console.WriteLine(JsonSerializer.Serialize(userInfoResponse2));
 
 			Console.WriteLine("End");

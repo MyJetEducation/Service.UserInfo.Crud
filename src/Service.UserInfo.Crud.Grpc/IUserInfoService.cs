@@ -8,9 +8,9 @@ namespace Service.UserInfo.Crud.Grpc
 	public interface IUserInfoService
 	{
 		[OperationContract]
-		ValueTask<UserInfoResponse> GetUserInfoByLoginAsync(UserInfoLoginRequest request);
+		ValueTask<UserAuthInfoResponse> GetUserInfoByLoginAsync(UserInfoLoginRequest request);
 
 		[OperationContract]
-		ValueTask<UserInfoResponse> GetUserInfoByTokenAsync(UserInfoTokenRequest request);
+		Task UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request);
 	}
 }
