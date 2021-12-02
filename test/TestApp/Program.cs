@@ -32,12 +32,12 @@ namespace TestApp
 				Console.WriteLine("Success.");
 
 			Console.WriteLine($"{Environment.NewLine}Retrieving UserId for {userName}");
-			UserIdResponse userIdResponse = await client.GetUserIdAsync(new UserInfoLoginRequest { UserName = userName });
+			UserIdResponse userIdResponse = await client.GetUserIdAsync(new UserInfoLoginRequest {UserName = userName});
 			Console.WriteLine(userIdResponse.UserId);
 
 			Console.WriteLine($"{Environment.NewLine}Retrieving (1) UserInfo for {userName}");
 			UserAuthInfoResponse getResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = userName});
-			Console.WriteLine(JsonSerializer.Serialize(getResponse1));
+			LogData(getResponse1);
 
 			Console.WriteLine($"{Environment.NewLine}Updating token info for {userName}.");
 			CommonResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
@@ -56,10 +56,12 @@ namespace TestApp
 
 				Console.WriteLine($"{Environment.NewLine}Retrieving (2) UserInfo for {userName}");
 				UserAuthInfoResponse getResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = userName});
-				Console.WriteLine(JsonSerializer.Serialize(getResponse2));
+				LogData(getResponse2);
 			}
 
 			Console.ReadLine();
 		}
+
+		private static void LogData(object data) => Console.WriteLine(JsonSerializer.Serialize(data));
 	}
 }

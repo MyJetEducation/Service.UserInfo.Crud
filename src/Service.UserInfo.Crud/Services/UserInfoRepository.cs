@@ -19,7 +19,7 @@ namespace Service.UserInfo.Crud.Services
 			_logger = logger;
 		}
 
-		public async ValueTask<UserInfoEntity> GetUserInfoAsync(string userName)
+		public async ValueTask<UserInfoEntity> GetUserInfoByNameAsync(string userName)
 		{
 			try
 			{
@@ -35,9 +35,25 @@ namespace Service.UserInfo.Crud.Services
 			return await ValueTask.FromResult<UserInfoEntity>(null);
 		}
 
+		public async ValueTask<UserInfoEntity> GetUserInfoByTokenAsync(string refreshToken)
+		{
+			try
+			{
+				return await GetContext()
+					.UserInfos
+					.FirstOrDefaultAsync(entity => entity.RefreshToken == refreshToken);
+			}
+			catch (Exception exception)
+			{
+				_logger.LogError(exception, exception.Message);
+			}
+
+			return await ValueTask.FromResult<UserInfoEntity>(null);
+		}
+
 		public async ValueTask<bool> UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires)
 		{
-			UserInfoEntity userInfo = await GetUserInfoAsync(userName);
+			UserInfoEntity userInfo = await GetUserInfoByNameAsync(userName);
 			if (userInfo == null)
 				return false;
 

@@ -13,14 +13,21 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<UserAuthInfoResponse> GetUserInfoByLoginAsync(UserInfoLoginRequest request)
 		{
-			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoAsync(request.UserName);
+			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByNameAsync(request.UserName);
+
+			return userInfo.ToGrpcModel();
+		}
+
+		public async ValueTask<UserAuthInfoResponse> GetUserInfoByTokenAsync(UserInfoTokenRequest request)
+		{
+			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByTokenAsync(request.RefreshToken);
 
 			return userInfo.ToGrpcModel();
 		}
 
 		public async ValueTask<UserIdResponse> GetUserIdAsync(UserInfoLoginRequest request)
 		{
-			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoAsync(request.UserName);
+			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByNameAsync(request.UserName);
 
 			return new UserIdResponse {UserId = userInfo?.Id};
 		}
