@@ -1,6 +1,7 @@
 name: Release API client nuget
 
 on:
+  workflow_dispatch:
   push:
     tags: "client-*"
 
