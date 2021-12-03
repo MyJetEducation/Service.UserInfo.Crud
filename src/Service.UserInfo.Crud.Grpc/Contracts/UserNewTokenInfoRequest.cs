@@ -7,7 +7,7 @@ namespace Service.UserInfo.Crud.Grpc.Contracts
 	public class UserNewTokenInfoRequest
 	{
 		[DataMember(Order = 1)]
-		public string UserName { get; set; }
+		public Guid? UserId { get; set; }
 
 		[DataMember(Order = 2)]
 		public string JwtToken { get; set; }

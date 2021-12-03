@@ -33,7 +33,8 @@ namespace TestApp
 
 			Console.WriteLine($"{Environment.NewLine}Retrieving UserId for {userName}");
 			UserIdResponse userIdResponse = await client.GetUserIdAsync(new UserInfoLoginRequest {UserName = userName});
-			Console.WriteLine(userIdResponse.UserId);
+			Guid? userId = userIdResponse.UserId;
+			Console.WriteLine(userId);
 
 			Console.WriteLine($"{Environment.NewLine}Retrieving (1) UserInfo for {userName}");
 			UserAuthInfoResponse getResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = userName});
@@ -43,7 +44,7 @@ namespace TestApp
 			var refreshToken = Guid.NewGuid().ToString();
 			CommonResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
 			{
-				UserName = userName,
+				UserId = userId,
 				JwtToken = Guid.NewGuid().ToString(),
 				RefreshToken = refreshToken,
 				RefreshTokenExpires = DateTime.Now,

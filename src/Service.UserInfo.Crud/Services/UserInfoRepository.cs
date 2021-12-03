@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Service.UserInfo.Crud.Grpc.Contracts;
 using Service.UserInfo.Crud.Postgres;
 using Service.UserInfo.Crud.Postgres.Models;
 
@@ -35,6 +36,22 @@ namespace Service.UserInfo.Crud.Services
 			return await ValueTask.FromResult<UserInfoEntity>(null);
 		}
 
+		private async ValueTask<UserInfoEntity> GetUserInfoById(Guid? userId)
+		{
+			try
+			{
+				return await GetContext()
+					.UserInfos
+					.FirstOrDefaultAsync(entity => entity.Id == userId);
+			}
+			catch (Exception exception)
+			{
+				_logger.LogError(exception, exception.Message);
+			}
+
+			return await ValueTask.FromResult<UserInfoEntity>(null);
+		}
+
 		public async ValueTask<UserInfoEntity> GetUserInfoByTokenAsync(string refreshToken)
 		{
 			try
@@ -51,16 +68,20 @@ namespace Service.UserInfo.Crud.Services
 			return await ValueTask.FromResult<UserInfoEntity>(null);
 		}
 
-		public async ValueTask<bool> UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires, string ipAddress)
+		public async ValueTask<bool> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
 		{
-			UserInfoEntity userInfo = await GetUserInfoByNameAsync(userName);
+			Guid? userId = request.UserId;
+			if (userId == null)
+				return false;
+
+			UserInfoEntity userInfo = await GetUserInfoById(userId);
 			if (userInfo == null)
 				return false;
 
-			userInfo.JwtToken = jwtToken;
-			userInfo.RefreshToken = refreshToken;
-			userInfo.RefreshTokenExpires = refreshTokenExpires;
-			userInfo.IpAddress = ipAddress;
+			userInfo.JwtToken = request.JwtToken;
+			userInfo.RefreshToken = request.RefreshToken;
+			userInfo.RefreshTokenExpires = request.RefreshTokenExpires;
+			userInfo.IpAddress = request.IpAddress;
 
 			try
 			{

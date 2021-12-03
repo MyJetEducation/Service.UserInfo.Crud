@@ -1,5 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Service.UserInfo.Crud.Grpc.Contracts;
 using Service.UserInfo.Crud.Postgres.Models;
 
 namespace Service.UserInfo.Crud.Services
@@ -10,7 +10,7 @@ namespace Service.UserInfo.Crud.Services
 
 		ValueTask<UserInfoEntity> GetUserInfoByTokenAsync(string refreshToken);
 
-		ValueTask<bool> UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires, string ipAddress);
+		ValueTask<bool> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request);
 
 		ValueTask<bool> CreateUserInfo(string userName, string password);
 	}

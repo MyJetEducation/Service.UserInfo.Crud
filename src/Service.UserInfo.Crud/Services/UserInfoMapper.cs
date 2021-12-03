@@ -13,6 +13,7 @@ namespace Service.UserInfo.Crud.Services
 					? new UserAuthInfoGrpcModel
 					{
 						UserId = userInfo.Id,
+						UserName = userInfo.UserName,
 						Password = userInfo.Password,
 						Role = userInfo.Role,
 						RefreshToken = userInfo.RefreshToken,
