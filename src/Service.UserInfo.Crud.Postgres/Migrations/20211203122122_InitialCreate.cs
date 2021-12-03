@@ -27,7 +27,7 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                     JwtToken = table.Column<string>(type: "character varying(800)", maxLength: 800, nullable: true),
                     RefreshToken = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     RefreshTokenExpires = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IpAddress = table.Column<string>(type: "character varying(15)", maxLength: 15, nullable: true)
+                    IpAddress = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
