@@ -46,7 +46,8 @@ namespace TestApp
 				UserName = userName,
 				JwtToken = Guid.NewGuid().ToString(),
 				RefreshToken = refreshToken,
-				RefreshTokenExpires = DateTime.Now
+				RefreshTokenExpires = DateTime.Now,
+				IpAddress = "192.168.1.1"
 			});
 
 			if (!updateResponse.IsSuccess)

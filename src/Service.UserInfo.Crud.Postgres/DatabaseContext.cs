@@ -45,6 +45,7 @@ namespace Service.UserInfo.Crud.Postgres
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.JwtToken).IsRequired(false).HasMaxLength(800);
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.RefreshToken).IsRequired(false).HasMaxLength(100);
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.RefreshTokenExpires).IsRequired(false);
+			modelBuilder.Entity<UserInfoEntity>().Property(e => e.IpAddress).HasMaxLength(15).IsRequired(false);
 			modelBuilder.Entity<UserInfoEntity>().HasIndex(e => e.Id).IsUnique();
 			modelBuilder.Entity<UserInfoEntity>().HasIndex(e => e.UserName).IsUnique();
 		}

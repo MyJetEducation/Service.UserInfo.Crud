@@ -33,6 +33,10 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
+
                     b.Property<string>("JwtToken")
                         .HasMaxLength(800)
                         .HasColumnType("character varying(800)");

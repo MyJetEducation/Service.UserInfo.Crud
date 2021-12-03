@@ -51,7 +51,7 @@ namespace Service.UserInfo.Crud.Services
 			return await ValueTask.FromResult<UserInfoEntity>(null);
 		}
 
-		public async ValueTask<bool> UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires)
+		public async ValueTask<bool> UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires, string ipAddress)
 		{
 			UserInfoEntity userInfo = await GetUserInfoByNameAsync(userName);
 			if (userInfo == null)
@@ -60,6 +60,7 @@ namespace Service.UserInfo.Crud.Services
 			userInfo.JwtToken = jwtToken;
 			userInfo.RefreshToken = refreshToken;
 			userInfo.RefreshTokenExpires = refreshTokenExpires;
+			userInfo.IpAddress = ipAddress;
 
 			try
 			{

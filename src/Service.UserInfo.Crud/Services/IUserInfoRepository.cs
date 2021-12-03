@@ -10,7 +10,7 @@ namespace Service.UserInfo.Crud.Services
 
 		ValueTask<UserInfoEntity> GetUserInfoByTokenAsync(string refreshToken);
 
-		ValueTask<bool> UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires);
+		ValueTask<bool> UpdateUserTokenInfoAsync(string userName, string jwtToken, string refreshToken, DateTime? refreshTokenExpires, string ipAddress);
 
 		ValueTask<bool> CreateUserInfo(string userName, string password);
 	}

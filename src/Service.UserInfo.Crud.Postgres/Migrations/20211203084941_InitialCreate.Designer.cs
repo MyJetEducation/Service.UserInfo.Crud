@@ -12,7 +12,7 @@ using Service.UserInfo.Crud.Postgres;
 namespace Service.UserInfo.Crud.Postgres.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20211201141134_InitialCreate")]
+    [Migration("20211203084941_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,10 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(15)
+                        .HasColumnType("character varying(15)");
 
                     b.Property<string>("JwtToken")
                         .HasMaxLength(800)

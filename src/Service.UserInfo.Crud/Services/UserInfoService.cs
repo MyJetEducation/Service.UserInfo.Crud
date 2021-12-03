@@ -34,7 +34,7 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<CommonResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
 		{
-			bool isSuccess = await _userInfoRepository.UpdateUserTokenInfoAsync(request.UserName, request.JwtToken, request.RefreshToken, request.RefreshTokenExpires);
+			bool isSuccess = await _userInfoRepository.UpdateUserTokenInfoAsync(request.UserName, request.JwtToken, request.RefreshToken, request.RefreshTokenExpires, request.IpAddress);
 
 			return new CommonResponse {IsSuccess = isSuccess};
 		}

@@ -20,5 +20,8 @@ namespace Service.UserInfo.Crud.Grpc.Models
 
 		[DataMember(Order = 5)]
 		public DateTime? RefreshTokenExpires { get; set; }
+
+		[DataMember(Order = 6)]
+		public string IpAddress { get; set; }
 	}
 }

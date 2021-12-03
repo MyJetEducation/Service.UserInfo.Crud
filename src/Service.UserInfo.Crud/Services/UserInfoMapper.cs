@@ -16,7 +16,8 @@ namespace Service.UserInfo.Crud.Services
 						Password = userInfo.Password,
 						Role = userInfo.Role,
 						RefreshToken = userInfo.RefreshToken,
-						RefreshTokenExpires = userInfo.RefreshTokenExpires
+						RefreshTokenExpires = userInfo.RefreshTokenExpires,
+						IpAddress = userInfo.IpAddress
 					}
 					: null
 			};
