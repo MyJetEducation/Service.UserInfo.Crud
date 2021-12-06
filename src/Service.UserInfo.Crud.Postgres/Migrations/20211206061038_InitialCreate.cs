@@ -27,12 +27,19 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                     JwtToken = table.Column<string>(type: "character varying(800)", maxLength: 800, nullable: true),
                     RefreshToken = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     RefreshTokenExpires = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IpAddress = table.Column<string>(type: "text", nullable: true)
+                    IpAddress = table.Column<string>(type: "text", nullable: true),
+                    ActivationHash = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_userinfo", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_userinfo_ActivationHash",
+                schema: "education",
+                table: "userinfo",
+                column: "ActivationHash");
 
             migrationBuilder.CreateIndex(
                 name: "IX_userinfo_Id",

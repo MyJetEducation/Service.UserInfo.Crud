@@ -12,6 +12,8 @@ namespace Service.UserInfo.Crud.Services
 
 		ValueTask<bool> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request);
 
-		ValueTask<bool> CreateUserInfo(string userName, string password);
+		ValueTask<string> CreateUserInfoAsync(string userName, string password);
+
+		ValueTask<bool> ConfirmUserInfoAsync(string hash);
 	}
 }

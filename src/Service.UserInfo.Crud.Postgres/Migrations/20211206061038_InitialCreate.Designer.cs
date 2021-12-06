@@ -12,7 +12,7 @@ using Service.UserInfo.Crud.Postgres;
 namespace Service.UserInfo.Crud.Postgres.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20211203122122_InitialCreate")]
+    [Migration("20211206061038_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -30,6 +30,9 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("ActivationHash")
+                        .HasColumnType("text");
 
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
@@ -69,6 +72,8 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ActivationHash");
 
                     b.HasIndex("Id")
                         .IsUnique();

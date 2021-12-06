@@ -7,7 +7,7 @@ namespace Service.UserInfo.Crud.Modules
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
-			builder.RegisterType<UserInfoRepository>().As<IUserInfoRepository>().SingleInstance();
+			builder.RegisterType<UserInfoRepository>().AsImplementedInterfaces().SingleInstance();
 		}
 	}
 }

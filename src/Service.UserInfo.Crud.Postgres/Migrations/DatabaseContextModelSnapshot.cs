@@ -29,6 +29,9 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ActivationHash")
+                        .HasColumnType("text");
+
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -67,6 +70,8 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ActivationHash");
 
                     b.HasIndex("Id")
                         .IsUnique();

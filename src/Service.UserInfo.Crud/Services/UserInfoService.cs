@@ -39,11 +39,18 @@ namespace Service.UserInfo.Crud.Services
 			return new CommonResponse {IsSuccess = isSuccess};
 		}
 
-		public async ValueTask<CommonResponse> CreateUserInfo(UserInfoRegisterRequest request)
+		public async ValueTask<CommonResponse> CreateUserInfoAsync(UserInfoRegisterRequest request)
 		{
-			bool isSuccess = await _userInfoRepository.CreateUserInfo(request.UserName, request.Password);
+			string hash = await _userInfoRepository.CreateUserInfoAsync(request.UserName, request.Password);
 
-			return new CommonResponse {IsSuccess = isSuccess};
+			return new CommonResponse {IsSuccess = hash != null};
+		}
+
+		public async ValueTask<CommonResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request)
+		{
+			bool isSuccess = await _userInfoRepository.ConfirmUserInfoAsync(request.Hash);
+
+			return new CommonResponse { IsSuccess = isSuccess };
 		}
 	}
 }

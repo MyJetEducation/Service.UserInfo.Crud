@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Service.UserInfo.Crud.Extensions;
 using Service.UserInfo.Crud.Grpc.Contracts;
 using Service.UserInfo.Crud.Postgres;
 using Service.UserInfo.Crud.Postgres.Models;
@@ -26,6 +29,7 @@ namespace Service.UserInfo.Crud.Services
 			{
 				return await GetContext()
 					.UserInfos
+					.Where(entity => entity.ActivationHash == null)
 					.FirstOrDefaultAsync(entity => entity.UserName == userName);
 			}
 			catch (Exception exception)
@@ -36,12 +40,13 @@ namespace Service.UserInfo.Crud.Services
 			return await ValueTask.FromResult<UserInfoEntity>(null);
 		}
 
-		private async ValueTask<UserInfoEntity> GetUserInfoById(Guid? userId)
+		private async ValueTask<UserInfoEntity> GetUserInfoById(Guid? userId, bool onlyActive = true)
 		{
 			try
 			{
 				return await GetContext()
 					.UserInfos
+					.WhereIf(onlyActive, entity => entity.ActivationHash == null)
 					.FirstOrDefaultAsync(entity => entity.Id == userId);
 			}
 			catch (Exception exception)
@@ -58,6 +63,7 @@ namespace Service.UserInfo.Crud.Services
 			{
 				return await GetContext()
 					.UserInfos
+					.Where(entity => entity.ActivationHash == null)
 					.FirstOrDefaultAsync(entity => entity.RefreshToken == refreshToken);
 			}
 			catch (Exception exception)
@@ -103,11 +109,13 @@ namespace Service.UserInfo.Crud.Services
 			return false;
 		}
 
-		public async ValueTask<bool> CreateUserInfo(string userName, string password)
+		public async ValueTask<string> CreateUserInfoAsync(string userName, string password)
 		{
 			try
 			{
 				_context = GetContext();
+
+				string activationHash = GenerateHash();
 
 				await _context
 					.UserInfos
@@ -116,8 +124,36 @@ namespace Service.UserInfo.Crud.Services
 						Id = Guid.NewGuid(),
 						UserName = userName,
 						Password = password,
-						Role = "default"
+						Role = "default",
+						ActivationHash = activationHash
 					});
+
+				await _context.SaveChangesAsync();
+
+				return activationHash;
+			}
+			catch (Exception exception)
+			{
+				_logger.LogError(exception, exception.Message);
+			}
+
+			return null;
+		}
+
+		public async ValueTask<bool> ConfirmUserInfoAsync(string hash)
+		{
+			try
+			{
+				_context = GetContext();
+
+				UserInfoEntity userInfo = await _context
+					.UserInfos
+					.FirstOrDefaultAsync(entity => entity.ActivationHash == hash);
+
+				if (userInfo == null)
+					return false;
+
+				userInfo.ActivationHash = null;
 
 				await _context.SaveChangesAsync();
 
@@ -132,5 +168,7 @@ namespace Service.UserInfo.Crud.Services
 		}
 
 		private DatabaseContext GetContext() => DatabaseContext.Create(_dbContextOptionsBuilder);
+
+		private static string GenerateHash() => Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
 	}
 }

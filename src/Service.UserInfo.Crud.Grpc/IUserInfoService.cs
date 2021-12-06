@@ -20,6 +20,9 @@ namespace Service.UserInfo.Crud.Grpc
 		ValueTask<CommonResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request);
 
 		[OperationContract]
-		ValueTask<CommonResponse> CreateUserInfo(UserInfoRegisterRequest request);
+		ValueTask<CommonResponse> CreateUserInfoAsync(UserInfoRegisterRequest request);
+
+		[OperationContract]
+		ValueTask<CommonResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request);
 	}
 }
