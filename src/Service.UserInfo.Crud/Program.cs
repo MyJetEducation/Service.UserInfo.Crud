@@ -15,6 +15,9 @@ namespace Service.UserInfo.Crud
 	public class Program
 	{
 		public const string SettingsFileName = ".myjeteducation";
+		public const string EncodingKeyStr = "ENCODING_KEY";
+
+		public static string EncodingKey { get; set; }
 
 		public static SettingsModel Settings { get; private set; }
 
@@ -31,6 +34,8 @@ namespace Service.UserInfo.Crud
 			Console.Title = "MyJetWallet Service.UserInfo.Crud";
 
 			Settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
+
+			GetEnvVariables();
 
 			using ILoggerFactory loggerFactory = LogConfigurator.ConfigureElk("MyJetWallet", Settings.SeqServiceUrl, Settings.ElkLogs);
 			ILogger<Program> logger = loggerFactory.CreateLogger<Program>();
@@ -74,5 +79,15 @@ namespace Service.UserInfo.Crud
 					services.AddSingleton(loggerFactory);
 					services.AddSingleton(typeof (ILogger<>), typeof (Logger<>));
 				});
+
+		private static void GetEnvVariables()
+		{
+			string key = Environment.GetEnvironmentVariable(EncodingKeyStr);
+
+			if (string.IsNullOrEmpty(key))
+				throw new Exception($"Env Variable {EncodingKeyStr} is not found");
+
+			EncodingKey = key;
+		}
 	}
 }

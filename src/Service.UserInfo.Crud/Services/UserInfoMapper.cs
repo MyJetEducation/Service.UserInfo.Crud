@@ -6,21 +6,19 @@ namespace Service.UserInfo.Crud.Services
 {
 	public static class UserInfoMapper
 	{
-		public static UserAuthInfoResponse ToGrpcModel(this UserInfoEntity userInfo) =>
-			new UserAuthInfoResponse
-			{
-				UserAuthInfo = userInfo != null
-					? new UserAuthInfoGrpcModel
-					{
-						UserId = userInfo.Id,
-						UserName = userInfo.UserName,
-						Password = userInfo.Password,
-						Role = userInfo.Role,
-						RefreshToken = userInfo.RefreshToken,
-						RefreshTokenExpires = userInfo.RefreshTokenExpires,
-						IpAddress = userInfo.IpAddress
-					}
-					: null
-			};
+		public static UserInfoResponse ToGrpcModel(this UserInfoEntity userInfo, IEncoderDecoder encoderDecoder) => new UserInfoResponse
+		{
+			UserInfo = userInfo != null
+				? new UserInfoGrpcModel
+				{
+					UserId = userInfo.Id,
+					UserName = encoderDecoder.Decode(userInfo.UserName),
+					Role = userInfo.Role,
+					RefreshToken = userInfo.RefreshToken,
+					RefreshTokenExpires = userInfo.RefreshTokenExpires,
+					IpAddress = userInfo.IpAddress
+				}
+				: null
+		};
 	}
 }

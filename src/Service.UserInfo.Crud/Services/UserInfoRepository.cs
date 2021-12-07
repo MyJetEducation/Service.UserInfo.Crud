@@ -23,14 +23,15 @@ namespace Service.UserInfo.Crud.Services
 			_logger = logger;
 		}
 
-		public async ValueTask<UserInfoEntity> GetUserInfoByNameAsync(string userName)
+		public async ValueTask<UserInfoEntity> GetUserInfoByLoginAsync(string userNameHash, string passwordHash = null)
 		{
 			try
 			{
 				return await GetContext()
 					.UserInfos
 					.Where(entity => entity.ActivationHash == null)
-					.FirstOrDefaultAsync(entity => entity.UserName == userName);
+					.WhereIf(passwordHash != null, entity => entity.PasswordHash == passwordHash)
+					.FirstOrDefaultAsync(entity => entity.UserNameHash == userNameHash);
 			}
 			catch (Exception exception)
 			{
@@ -109,7 +110,7 @@ namespace Service.UserInfo.Crud.Services
 			return false;
 		}
 
-		public async ValueTask<string> CreateUserInfoAsync(string userName, string password)
+		public async ValueTask<string> CreateUserInfoAsync(string userName, string userNameHash, string passwordHash)
 		{
 			try
 			{
@@ -123,7 +124,8 @@ namespace Service.UserInfo.Crud.Services
 					{
 						Id = Guid.NewGuid(),
 						UserName = userName,
-						Password = password,
+						UserNameHash = userNameHash,
+						PasswordHash = passwordHash,
 						Role = "default",
 						ActivationHash = activationHash
 					});

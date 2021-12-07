@@ -8,6 +8,10 @@ namespace Service.UserInfo.Crud.Modules
 		protected override void Load(ContainerBuilder builder)
 		{
 			builder.RegisterType<UserInfoRepository>().AsImplementedInterfaces().SingleInstance();
+
+			builder.Register(context => new EncoderDecoder(Program.EncodingKey))
+				.As<IEncoderDecoder>()
+				.SingleInstance();
 		}
 	}
 }

@@ -8,6 +8,7 @@ using Service.UserInfo.Crud.Client;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Contracts;
 using Service.UserInfo.Crud.Postgres;
+using Service.UserInfo.Crud.Services;
 
 namespace TestApp
 {
@@ -25,44 +26,43 @@ namespace TestApp
 
 			//Creating UserInfo
 			var userName = $"user-{DateTime.UtcNow:HHmmss}";
+			const string password = "123";
+
 			Console.WriteLine($"{Environment.NewLine}Creating UserInfo {userName}.");
-			CommonResponse createResponse = await client.CreateUserInfoAsync(new UserInfoRegisterRequest {UserName = userName, Password = "123"});
+			CommonResponse createResponse = await client.CreateUserInfoAsync(new UserInfoRegisterRequest {UserName = userName, Password = password});
 			if (!createResponse.IsSuccess)
 			{
 				Console.WriteLine("Error! Unable to execute CreateUserInfoAsync");
 				Console.ReadLine();
 			}
 			else
-				Console.WriteLine("Success.");
+				Console.WriteLine("Success!");
 
 			//Activate UserInfo
 			Console.WriteLine($"{Environment.NewLine}Activate UserInfo for {userName}");
 
+			string key = Environment.GetEnvironmentVariable(Service.UserInfo.Crud.Program.EncodingKeyStr);
+			EncoderDecoder decoder = new EncoderDecoder(key);
+
 			string hash = GetDbContext()
 				.UserInfos
-				.Where(entity => entity.UserName == userName)
+				.Where(entity => entity.UserNameHash == decoder.Hash(userName))
 				.Select(entity => entity.ActivationHash)
 				.FirstOrDefault();
-			Console.WriteLine($"{Environment.NewLine}Hash is {hash}");
+			Console.WriteLine($"{Environment.NewLine}ActivationHash is {hash}");
 
 			CommonResponse activateResponse = await client.ConfirmUserInfoAsync(new UserInfoConfirmRequest {Hash = hash});
 			if (!activateResponse.IsSuccess)
 			{
-				Console.WriteLine("Error! Unable to execute UpdateUserTokenInfoAsync");
+				Console.WriteLine("Error! Unable to execute ConfirmUserInfoAsync");
 				Console.ReadLine();
 			}
 			else
 				Console.WriteLine("Activated!");
 
-			//Retrieving UserId
-			Console.WriteLine($"{Environment.NewLine}Retrieving UserId for {userName}");
-			UserIdResponse userIdResponse = await client.GetUserIdAsync(new UserInfoLoginRequest {UserName = userName});
-			Guid? userId = userIdResponse.UserId;
-			Console.WriteLine(userId);
-
 			//Retrieving UserInfo
-			Console.WriteLine($"{Environment.NewLine}Retrieving (1) UserInfo for {userName}");
-			UserAuthInfoResponse getResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = userName});
+			Console.WriteLine($"{Environment.NewLine}Retrieving (1) UserInfo by name for {userName}");
+			UserInfoResponse getResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = userName});
 			LogData(getResponse1);
 
 			//Updating token
@@ -70,7 +70,7 @@ namespace TestApp
 			var refreshToken = Guid.NewGuid().ToString();
 			CommonResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
 			{
-				UserId = userId,
+				UserId = getResponse1.UserInfo.UserId,
 				JwtToken = Guid.NewGuid().ToString(),
 				RefreshToken = refreshToken,
 				RefreshTokenExpires = DateTime.Now,
@@ -81,17 +81,23 @@ namespace TestApp
 				Console.WriteLine("Error! Unable to execute UpdateUserTokenInfoAsync");
 			else
 			{
-				Console.WriteLine("Success.");
+				Console.WriteLine("Success!");
 
 				//Retrieving UserInfo
-				Console.WriteLine($"{Environment.NewLine}Retrieving (2) UserInfo by name {userName}");
-				UserAuthInfoResponse getResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoLoginRequest {UserName = userName});
+				Console.WriteLine($"{Environment.NewLine}Retrieving (2) UserInfo by name and password {userName}");
+				UserInfoResponse getResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = userName, Password = password});
 				LogData(getResponse2);
+
+				if (getResponse2.UserInfo == null)
+					Console.WriteLine("Error! Unable to execute (2) GetUserInfoByLoginAsync");
 
 				//Retrieving UserInfo
 				Console.WriteLine($"{Environment.NewLine}Retrieving (3) UserInfo by refreshToken {refreshToken}");
-				UserAuthInfoResponse getResponse3 = await client.GetUserInfoByTokenAsync(new UserInfoTokenRequest {RefreshToken = refreshToken});
+				UserInfoResponse getResponse3 = await client.GetUserInfoByTokenAsync(new UserInfoTokenRequest {RefreshToken = refreshToken});
 				LogData(getResponse3);
+
+				if (getResponse3.UserInfo == null)
+					Console.WriteLine("Error! Unable to execute (3) GetUserInfoByTokenAsync");
 			}
 
 			Console.ReadLine();

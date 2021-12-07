@@ -39,7 +39,7 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                         .HasMaxLength(800)
                         .HasColumnType("character varying(800)");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -58,6 +58,10 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("UserNameHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ActivationHash");
@@ -65,7 +69,7 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                     b.HasIndex("Id")
                         .IsUnique();
 
-                    b.HasIndex("UserName")
+                    b.HasIndex("UserNameHash")
                         .IsUnique();
 
                     b.ToTable("userinfo", "education");

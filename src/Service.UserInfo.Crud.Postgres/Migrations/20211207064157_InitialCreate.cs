@@ -19,7 +19,8 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     UserName = table.Column<string>(type: "text", nullable: false),
-                    Password = table.Column<string>(type: "text", nullable: false),
+                    UserNameHash = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
                     Role = table.Column<string>(type: "text", nullable: false),
                     JwtToken = table.Column<string>(type: "character varying(800)", maxLength: 800, nullable: true),
                     RefreshToken = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
@@ -46,10 +47,10 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_userinfo_UserName",
+                name: "IX_userinfo_UserNameHash",
                 schema: "education",
                 table: "userinfo",
-                column: "UserName",
+                column: "UserNameHash",
                 unique: true);
         }
 

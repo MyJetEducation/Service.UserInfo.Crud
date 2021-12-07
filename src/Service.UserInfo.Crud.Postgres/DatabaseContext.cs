@@ -38,7 +38,8 @@ namespace Service.UserInfo.Crud.Postgres
 			modelBuilder.Entity<UserInfoEntity>().HasKey(e => e.Id);
 
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.UserName).IsRequired();
-			modelBuilder.Entity<UserInfoEntity>().Property(e => e.Password).IsRequired();
+			modelBuilder.Entity<UserInfoEntity>().Property(e => e.UserNameHash).IsRequired();
+			modelBuilder.Entity<UserInfoEntity>().Property(e => e.PasswordHash).IsRequired();
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.Role).IsRequired();
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.JwtToken).IsRequired(false).HasMaxLength(800);
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.RefreshToken).IsRequired(false).HasMaxLength(100);
@@ -47,7 +48,7 @@ namespace Service.UserInfo.Crud.Postgres
 			modelBuilder.Entity<UserInfoEntity>().Property(e => e.ActivationHash);
 
 			modelBuilder.Entity<UserInfoEntity>().HasIndex(e => e.Id).IsUnique();
-			modelBuilder.Entity<UserInfoEntity>().HasIndex(e => e.UserName).IsUnique();
+			modelBuilder.Entity<UserInfoEntity>().HasIndex(e => e.UserNameHash).IsUnique();
 			modelBuilder.Entity<UserInfoEntity>().HasIndex(e => e.ActivationHash);
 		}
 	}

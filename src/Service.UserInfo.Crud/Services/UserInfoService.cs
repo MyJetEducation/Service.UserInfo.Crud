@@ -8,28 +8,29 @@ namespace Service.UserInfo.Crud.Services
 	public class UserInfoService : IUserInfoService
 	{
 		private readonly IUserInfoRepository _userInfoRepository;
+		private readonly IEncoderDecoder _encoderDecoder;
 
-		public UserInfoService(IUserInfoRepository userInfoRepository) => _userInfoRepository = userInfoRepository;
-
-		public async ValueTask<UserAuthInfoResponse> GetUserInfoByLoginAsync(UserInfoLoginRequest request)
+		public UserInfoService(IUserInfoRepository userInfoRepository, IEncoderDecoder encoderDecoder)
 		{
-			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByNameAsync(request.UserName);
-
-			return userInfo.ToGrpcModel();
+			_userInfoRepository = userInfoRepository;
+			_encoderDecoder = encoderDecoder;
 		}
 
-		public async ValueTask<UserAuthInfoResponse> GetUserInfoByTokenAsync(UserInfoTokenRequest request)
+		public async ValueTask<UserInfoResponse> GetUserInfoByLoginAsync(UserInfoAuthRequest request)
+		{
+			string userNameHash = _encoderDecoder.Hash(request.UserName);
+			string passwordHash = _encoderDecoder.Hash(request.Password);
+
+			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByLoginAsync(userNameHash, passwordHash);
+
+			return userInfo.ToGrpcModel(_encoderDecoder);
+		}
+
+		public async ValueTask<UserInfoResponse> GetUserInfoByTokenAsync(UserInfoTokenRequest request)
 		{
 			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByTokenAsync(request.RefreshToken);
 
-			return userInfo.ToGrpcModel();
-		}
-
-		public async ValueTask<UserIdResponse> GetUserIdAsync(UserInfoLoginRequest request)
-		{
-			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByNameAsync(request.UserName);
-
-			return new UserIdResponse {UserId = userInfo?.Id};
+			return userInfo.ToGrpcModel(_encoderDecoder);
 		}
 
 		public async ValueTask<CommonResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
@@ -41,16 +42,24 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<CommonResponse> CreateUserInfoAsync(UserInfoRegisterRequest request)
 		{
-			string hash = await _userInfoRepository.CreateUserInfoAsync(request.UserName, request.Password);
+			string userNameEncoded = PrepareUserName(request.UserName);
+			string userNameHash = _encoderDecoder.Hash(request.UserName);
+			string passwordHash = _encoderDecoder.Hash(request.Password);
+
+			string hash = await _userInfoRepository.CreateUserInfoAsync(userNameEncoded, userNameHash, passwordHash);
+
+			//TODO: Here send message to user with hash
 
 			return new CommonResponse {IsSuccess = hash != null};
 		}
+
+		private string PrepareUserName(string userName) => _encoderDecoder.Encode(userName.ToLower());
 
 		public async ValueTask<CommonResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request)
 		{
 			bool isSuccess = await _userInfoRepository.ConfirmUserInfoAsync(request.Hash);
 
-			return new CommonResponse { IsSuccess = isSuccess };
+			return new CommonResponse {IsSuccess = isSuccess};
 		}
 	}
 }

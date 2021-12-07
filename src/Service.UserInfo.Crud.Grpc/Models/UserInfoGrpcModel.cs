@@ -7,21 +7,21 @@ namespace Service.UserInfo.Crud.Grpc.Models
 	public class UserInfoGrpcModel
 	{
 		[DataMember(Order = 1)]
-		public Guid? Id { get; set; }
+		public Guid? UserId { get; set; }
 
 		[DataMember(Order = 2)]
-		public string FirstName { get; set; }
-
-		[DataMember(Order = 3)]
-		public string LastName { get; set; }
-
-		[DataMember(Order = 4)]
-		public bool? Sex { get; set; }
-
-		[DataMember(Order = 5)]
 		public string UserName { get; set; }
 
-		[DataMember(Order = 6)]
+		[DataMember(Order = 3)]
 		public string Role { get; set; }
+
+		[DataMember(Order = 4)]
+		public string RefreshToken { get; set; }
+
+		[DataMember(Order = 5)]
+		public DateTime? RefreshTokenExpires { get; set; }
+
+		[DataMember(Order = 6)]
+		public string IpAddress { get; set; }
 	}
 }
