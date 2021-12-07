@@ -18,9 +18,6 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    Sex = table.Column<bool>(type: "boolean", nullable: true),
                     UserName = table.Column<string>(type: "text", nullable: false),
                     Password = table.Column<string>(type: "text", nullable: false),
                     Role = table.Column<string>(type: "text", nullable: false),

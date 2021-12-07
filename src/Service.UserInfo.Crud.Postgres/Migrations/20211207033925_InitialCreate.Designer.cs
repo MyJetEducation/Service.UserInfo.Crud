@@ -12,7 +12,7 @@ using Service.UserInfo.Crud.Postgres;
 namespace Service.UserInfo.Crud.Postgres.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20211206061038_InitialCreate")]
+    [Migration("20211207033925_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,20 +34,12 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                     b.Property<string>("ActivationHash")
                         .HasColumnType("text");
 
-                    b.Property<string>("FirstName")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
                     b.Property<string>("IpAddress")
                         .HasColumnType("text");
 
                     b.Property<string>("JwtToken")
                         .HasMaxLength(800)
                         .HasColumnType("character varying(800)");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -63,9 +55,6 @@ namespace Service.UserInfo.Crud.Postgres.Migrations
                     b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool?>("Sex")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
                         .IsRequired()
