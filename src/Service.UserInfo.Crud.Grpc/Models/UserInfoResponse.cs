@@ -1,7 +1,6 @@
 using System.Runtime.Serialization;
-using Service.UserInfo.Crud.Grpc.Models;
 
-namespace Service.UserInfo.Crud.Grpc.Contracts
+namespace Service.UserInfo.Crud.Grpc.Models
 {
 	[DataContract]
 	public class UserInfoResponse

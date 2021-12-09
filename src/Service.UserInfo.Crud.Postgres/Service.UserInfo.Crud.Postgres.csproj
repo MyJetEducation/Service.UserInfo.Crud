@@ -22,4 +22,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Service.UserInfo.Crud.Domain.Models\Service.UserInfo.Crud.Domain.Models.csproj" />
+  </ItemGroup>
+
 </Project>

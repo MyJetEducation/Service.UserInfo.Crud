@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ProtoBuf.Grpc.Client;
 using Service.UserInfo.Crud.Client;
+using Service.UserInfo.Crud.Domain;
 using Service.UserInfo.Crud.Grpc;
-using Service.UserInfo.Crud.Grpc.Contracts;
+using Service.UserInfo.Crud.Grpc.Models;
 using Service.UserInfo.Crud.Postgres;
-using Service.UserInfo.Crud.Services;
 
 namespace TestApp
 {
@@ -29,7 +29,7 @@ namespace TestApp
 			const string password = "123";
 
 			Console.WriteLine($"{Environment.NewLine}Creating UserInfo {userName}.");
-			CommonResponse createResponse = await client.CreateUserInfoAsync(new UserInfoRegisterRequest {UserName = userName, Password = password});
+			CommonGrpcResponse createResponse = await client.CreateUserInfoAsync(new UserInfoRegisterRequest {UserName = userName, Password = password});
 			if (!createResponse.IsSuccess)
 			{
 				Console.WriteLine("Error! Unable to execute CreateUserInfoAsync");
@@ -51,7 +51,7 @@ namespace TestApp
 				.FirstOrDefault();
 			Console.WriteLine($"{Environment.NewLine}ActivationHash is {hash}");
 
-			CommonResponse activateResponse = await client.ConfirmUserInfoAsync(new UserInfoConfirmRequest {Hash = hash});
+			CommonGrpcResponse activateResponse = await client.ConfirmUserInfoAsync(new UserInfoConfirmRequest {Hash = hash});
 			if (!activateResponse.IsSuccess)
 			{
 				Console.WriteLine("Error! Unable to execute ConfirmUserInfoAsync");
@@ -68,7 +68,7 @@ namespace TestApp
 			//Updating token
 			Console.WriteLine($"{Environment.NewLine}Updating token info for {userName}.");
 			var refreshToken = Guid.NewGuid().ToString();
-			CommonResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
+			CommonGrpcResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
 			{
 				UserId = getResponse1.UserInfo.UserId,
 				JwtToken = Guid.NewGuid().ToString(),

@@ -1,7 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SimpleTrading.Common" Version="1.0.32" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Service.UserInfo.Crud.Domain.Models\Service.UserInfo.Crud.Domain.Models.csproj" />
+    <ProjectReference Include="..\Service.UserInfo.Crud.Postgres\Service.UserInfo.Crud.Postgres.csproj" />
+  </ItemGroup>
 
 </Project>

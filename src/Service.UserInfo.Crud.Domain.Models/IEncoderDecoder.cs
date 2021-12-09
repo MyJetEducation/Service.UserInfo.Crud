@@ -1,4 +1,4 @@
-﻿namespace Service.UserInfo.Crud.Services
+﻿namespace Service.UserInfo.Crud.Domain.Models
 {
 	public interface IEncoderDecoder
 	{

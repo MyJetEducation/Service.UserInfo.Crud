@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Service.UserInfo.Crud.Grpc.Contracts
+namespace Service.UserInfo.Crud.Grpc.Models
 {
 	[DataContract]
 	public class UserInfoConfirmRequest

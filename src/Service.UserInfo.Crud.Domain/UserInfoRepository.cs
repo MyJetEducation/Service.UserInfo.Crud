@@ -4,12 +4,11 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Service.UserInfo.Crud.Extensions;
-using Service.UserInfo.Crud.Grpc.Contracts;
+using Service.UserInfo.Crud.Domain.Extensions;
+using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Postgres;
-using Service.UserInfo.Crud.Postgres.Models;
 
-namespace Service.UserInfo.Crud.Services
+namespace Service.UserInfo.Crud.Domain
 {
 	public class UserInfoRepository : IUserInfoRepository
 	{
@@ -75,9 +74,8 @@ namespace Service.UserInfo.Crud.Services
 			return await ValueTask.FromResult<UserInfoEntity>(null);
 		}
 
-		public async ValueTask<bool> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
+		public async ValueTask<bool> UpdateUserTokenInfoAsync(Guid? userId, string token, string refreshToken, DateTime? refreshTokenExpires, string ipAddress)
 		{
-			Guid? userId = request.UserId;
 			if (userId == null)
 				return false;
 
@@ -85,10 +83,10 @@ namespace Service.UserInfo.Crud.Services
 			if (userInfo == null)
 				return false;
 
-			userInfo.JwtToken = request.JwtToken;
-			userInfo.RefreshToken = request.RefreshToken;
-			userInfo.RefreshTokenExpires = request.RefreshTokenExpires;
-			userInfo.IpAddress = request.IpAddress;
+			userInfo.JwtToken = token;
+			userInfo.RefreshToken = refreshToken;
+			userInfo.RefreshTokenExpires = refreshTokenExpires;
+			userInfo.IpAddress = ipAddress;
 
 			try
 			{
@@ -139,7 +137,7 @@ namespace Service.UserInfo.Crud.Services
 				_logger.LogError(exception, exception.Message);
 			}
 
-			return null;
+			return await ValueTask.FromResult<string>(null);
 		}
 
 		public async ValueTask<bool> ConfirmUserInfoAsync(string hash)

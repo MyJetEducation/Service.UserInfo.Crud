@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using Service.UserInfo.Crud.Domain.Models;
 using SimpleTrading.Common.Helpers;
+using HexConverterUtils = MyJetWallet.Sdk.Service.HexConverterUtils;
 
-namespace Service.UserInfo.Crud.Services
+namespace Service.UserInfo.Crud.Domain
 {
 	public class EncoderDecoder : IEncoderDecoder
 	{
@@ -22,12 +24,12 @@ namespace Service.UserInfo.Crud.Services
 
 			byte[] result = AesEncodeDecode.Encode(data, _encodingKeyBytes);
 
-			return result.ToHexString();
+			return HexConverterUtils.ToHexString(result);
 		}
 
 		public string Decode(string str)
 		{
-			byte[] data = str.HexStringToByteArray();
+			byte[] data = HexConverterUtils.HexStringToByteArray(str);
 
 			byte[] decode = AesEncodeDecode.Decode(data, _encodingKeyBytes);
 

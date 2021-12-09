@@ -1,6 +1,6 @@
 using System.ServiceModel;
 using System.Threading.Tasks;
-using Service.UserInfo.Crud.Grpc.Contracts;
+using Service.UserInfo.Crud.Grpc.Models;
 
 namespace Service.UserInfo.Crud.Grpc
 {
@@ -14,12 +14,12 @@ namespace Service.UserInfo.Crud.Grpc
 		ValueTask<UserInfoResponse> GetUserInfoByTokenAsync(UserInfoTokenRequest request);
 
 		[OperationContract]
-		ValueTask<CommonResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request);
+		ValueTask<CommonGrpcResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request);
 
 		[OperationContract]
-		ValueTask<CommonResponse> CreateUserInfoAsync(UserInfoRegisterRequest request);
+		ValueTask<CommonGrpcResponse> CreateUserInfoAsync(UserInfoRegisterRequest request);
 
 		[OperationContract]
-		ValueTask<CommonResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request);
+		ValueTask<CommonGrpcResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request);
 	}
 }

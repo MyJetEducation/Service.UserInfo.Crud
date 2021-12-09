@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
+using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Grpc;
-using Service.UserInfo.Crud.Grpc.Contracts;
-using Service.UserInfo.Crud.Postgres.Models;
+using Service.UserInfo.Crud.Grpc.Models;
+using Service.UserInfo.Crud.Mappers;
 
 namespace Service.UserInfo.Crud.Services
 {
@@ -23,24 +24,30 @@ namespace Service.UserInfo.Crud.Services
 
 			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByLoginAsync(userNameHash, passwordHash);
 
-			return userInfo.ToGrpcModel(_encoderDecoder);
+			return new UserInfoResponse
+			{
+				UserInfo = userInfo?.ToGrpcModel(_encoderDecoder)
+			};
 		}
 
 		public async ValueTask<UserInfoResponse> GetUserInfoByTokenAsync(UserInfoTokenRequest request)
 		{
 			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByTokenAsync(request.RefreshToken);
 
-			return userInfo.ToGrpcModel(_encoderDecoder);
+			return new UserInfoResponse
+			{
+				UserInfo = userInfo?.ToGrpcModel(_encoderDecoder)
+			};
 		}
 
-		public async ValueTask<CommonResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
+		public async ValueTask<CommonGrpcResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
 		{
-			bool isSuccess = await _userInfoRepository.UpdateUserTokenInfoAsync(request);
+			bool updated = await _userInfoRepository.UpdateUserTokenInfoAsync(request.UserId, request.JwtToken, request.RefreshToken, request.RefreshTokenExpires, request.IpAddress);
 
-			return new CommonResponse {IsSuccess = isSuccess};
+			return CommonGrpcResponse.Result(updated);
 		}
 
-		public async ValueTask<CommonResponse> CreateUserInfoAsync(UserInfoRegisterRequest request)
+		public async ValueTask<CommonGrpcResponse> CreateUserInfoAsync(UserInfoRegisterRequest request)
 		{
 			string userNameEncoded = PrepareUserName(request.UserName);
 			string userNameHash = _encoderDecoder.Hash(request.UserName);
@@ -50,16 +57,16 @@ namespace Service.UserInfo.Crud.Services
 
 			//TODO: Here send message to user with hash
 
-			return new CommonResponse {IsSuccess = hash != null};
+			return CommonGrpcResponse.Result(hash != null);
 		}
 
 		private string PrepareUserName(string userName) => _encoderDecoder.Encode(userName.ToLower());
 
-		public async ValueTask<CommonResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request)
+		public async ValueTask<CommonGrpcResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request)
 		{
-			bool isSuccess = await _userInfoRepository.ConfirmUserInfoAsync(request.Hash);
+			bool confirmed = await _userInfoRepository.ConfirmUserInfoAsync(request.Hash);
 
-			return new CommonResponse {IsSuccess = isSuccess};
+			return CommonGrpcResponse.Result(confirmed);
 		}
 	}
 }

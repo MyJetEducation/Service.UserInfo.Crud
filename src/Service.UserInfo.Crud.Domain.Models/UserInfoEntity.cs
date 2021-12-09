@@ -1,4 +1,6 @@
-﻿namespace Service.UserInfo.Crud.Postgres.Models
+﻿using System;
+
+namespace Service.UserInfo.Crud.Domain.Models
 {
 	public class UserInfoEntity
 	{
