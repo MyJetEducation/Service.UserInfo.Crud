@@ -60,6 +60,16 @@ namespace Service.UserInfo.Crud.Services
 			return CommonGrpcResponse.Result(hash != null);
 		}
 
+		public async ValueTask<CommonGrpcResponse> ChangePasswordAsync(UserInfoChangePasswordRequest request)
+		{
+			string userNameHash = _encoderDecoder.Hash(request.Email);
+			string passwordHash = _encoderDecoder.Hash(request.Password);
+
+			bool changed = await _userInfoRepository.ChangeUserInfoPasswordAsync(userNameHash, passwordHash);
+
+			return CommonGrpcResponse.Result(changed);
+		}
+
 		private string PrepareUserName(string userName) => _encoderDecoder.Encode(userName.ToLower());
 
 		public async ValueTask<CommonGrpcResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request)

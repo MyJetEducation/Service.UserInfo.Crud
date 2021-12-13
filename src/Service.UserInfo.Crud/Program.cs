@@ -31,13 +31,13 @@ namespace Service.UserInfo.Crud
 
 		public static void Main(string[] args)
 		{
-			Console.Title = "MyJetWallet Service.UserInfo.Crud";
+			Console.Title = "MyJetEducation Service.UserInfo.Crud";
 
 			Settings = SettingsReader.GetSettings<SettingsModel>(SettingsFileName);
 
 			GetEnvVariables();
 
-			using ILoggerFactory loggerFactory = LogConfigurator.ConfigureElk("MyJetWallet", Settings.SeqServiceUrl, Settings.ElkLogs);
+			using ILoggerFactory loggerFactory = LogConfigurator.ConfigureElk("MyJetEducation", Settings.SeqServiceUrl, Settings.ElkLogs);
 			ILogger<Program> logger = loggerFactory.CreateLogger<Program>();
 			LogFactory = loggerFactory;
 

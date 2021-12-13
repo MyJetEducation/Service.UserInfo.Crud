@@ -167,6 +167,28 @@ namespace Service.UserInfo.Crud.Domain
 			return false;
 		}
 
+		public async ValueTask<bool> ChangeUserInfoPasswordAsync(string userNameHash, string passwordHash)
+		{
+			UserInfoEntity userInfo = await GetUserInfoByLoginAsync(userNameHash);
+			if (userInfo == null)
+				return false;
+
+			try
+			{
+				userInfo.PasswordHash = passwordHash;
+
+				await _context.SaveChangesAsync();
+
+				return true;
+			}
+			catch (Exception exception)
+			{
+				_logger.LogError(exception, exception.Message);
+			}
+
+			return false;
+		}
+
 		private DatabaseContext GetContext() => DatabaseContext.Create(_dbContextOptionsBuilder);
 
 		private static string GenerateHash() => Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");

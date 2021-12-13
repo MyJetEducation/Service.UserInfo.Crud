@@ -26,5 +26,7 @@ namespace Service.UserInfo.Crud.Domain.Models
 		/// <param name="hash">Activation hash</param>
 		/// <returns></returns>
 		ValueTask<bool> ConfirmUserInfoAsync(string hash);
+
+		ValueTask<bool> ChangeUserInfoPasswordAsync(string userNameHash, string passwordHash);
 	}
 }
