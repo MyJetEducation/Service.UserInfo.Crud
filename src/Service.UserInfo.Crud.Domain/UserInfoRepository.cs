@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Service.Core.Domain;
 using Service.Core.Domain.Extensions;
+using Service.Core.Domain.Models.Constants;
 using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Postgres;
 
@@ -124,7 +125,7 @@ namespace Service.UserInfo.Crud.Domain
 						UserName = userName,
 						UserNameHash = userNameHash,
 						PasswordHash = passwordHash,
-						Role = "default",
+						Role = UserRole.Default,
 						ActivationHash = activationHash
 					});
 
