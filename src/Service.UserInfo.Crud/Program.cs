@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyJetWallet.Sdk.Service;
 using MySettingsReader;
+using Service.Core.Domain.Extensions;
 using Service.UserInfo.Crud.Settings;
 
 namespace Service.UserInfo.Crud
@@ -84,7 +85,7 @@ namespace Service.UserInfo.Crud
 		{
 			string key = Environment.GetEnvironmentVariable(EncodingKeyStr);
 
-			if (string.IsNullOrEmpty(key))
+			if (key.IsNullOrEmpty())
 				throw new Exception($"Env Variable {EncodingKeyStr} is not found");
 
 			EncodingKey = key;
