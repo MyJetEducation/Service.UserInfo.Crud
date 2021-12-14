@@ -1,5 +1,6 @@
 using System.ServiceModel;
 using System.Threading.Tasks;
+using Service.Core.Grpc.Models;
 using Service.UserInfo.Crud.Grpc.Models;
 
 namespace Service.UserInfo.Crud.Grpc

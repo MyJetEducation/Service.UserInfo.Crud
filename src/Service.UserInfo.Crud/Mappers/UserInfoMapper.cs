@@ -1,4 +1,5 @@
-﻿using Service.UserInfo.Crud.Domain.Models;
+﻿using Service.Core.Domain.Models;
+using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Grpc.Models;
 
 namespace Service.UserInfo.Crud.Mappers

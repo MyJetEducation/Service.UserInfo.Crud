@@ -4,8 +4,9 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using ProtoBuf.Grpc.Client;
+using Service.Core.Domain;
+using Service.Core.Grpc.Models;
 using Service.UserInfo.Crud.Client;
-using Service.UserInfo.Crud.Domain;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Models;
 using Service.UserInfo.Crud.Postgres;
@@ -25,7 +26,7 @@ namespace TestApp
 			IUserInfoService client = factory.GetUserInfoService();
 
 			//Creating UserInfo
-			var userName = $"user-{DateTime.UtcNow:HHmmss}";
+			string userName = $"user-{DateTime.UtcNow:HHmmss}";
 			const string password = "123";
 
 			Console.WriteLine($"{Environment.NewLine}Creating UserInfo {userName}.");
@@ -42,7 +43,7 @@ namespace TestApp
 			Console.WriteLine($"{Environment.NewLine}Activate UserInfo for {userName}");
 
 			string key = Environment.GetEnvironmentVariable(Service.UserInfo.Crud.Program.EncodingKeyStr);
-			EncoderDecoder decoder = new EncoderDecoder(key);
+			var decoder = new EncoderDecoder(key);
 
 			string hash = GetDbContext()
 				.UserInfos
@@ -98,6 +99,14 @@ namespace TestApp
 
 				if (getResponse3.UserInfo == null)
 					Console.WriteLine("Error! Unable to execute (3) GetUserInfoByTokenAsync");
+
+				//Change user password
+				Console.WriteLine($"{Environment.NewLine}ChangePassword");
+				CommonGrpcResponse getResponse4 = await client.ChangePasswordAsync(new UserInfoChangePasswordRequest {UserName = userName, Password = "newPassword"});
+				LogData(getResponse4);
+
+				if (!getResponse4.IsSuccess)
+					Console.WriteLine("Error! Unable to execute (3) ChangePasswordAsync");
 			}
 
 			Console.ReadLine();

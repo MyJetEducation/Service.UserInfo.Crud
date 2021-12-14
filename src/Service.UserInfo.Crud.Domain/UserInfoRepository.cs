@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Service.UserInfo.Crud.Domain.Extensions;
+using Service.Core.Domain;
+using Service.Core.Domain.Extensions;
 using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Postgres;
 
@@ -114,7 +114,7 @@ namespace Service.UserInfo.Crud.Domain
 			{
 				_context = GetContext();
 
-				string activationHash = GenerateHash();
+				string activationHash = HashGenerator.New;
 
 				await _context
 					.UserInfos
@@ -190,7 +190,5 @@ namespace Service.UserInfo.Crud.Domain
 		}
 
 		private DatabaseContext GetContext() => DatabaseContext.Create(_dbContextOptionsBuilder);
-
-		private static string GenerateHash() => Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
 	}
 }

@@ -6,7 +6,7 @@ namespace Service.UserInfo.Crud.Grpc.Models
 	public class UserInfoChangePasswordRequest
 	{
 		[DataMember(Order = 1)]
-		public string Email { get; set; }
+		public string UserName { get; set; }
 
 		[DataMember(Order = 2)]
 		public string Password { get; set; }

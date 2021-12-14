@@ -1,6 +1,7 @@
 ﻿using Autofac;
+using Service.Core.Domain;
+using Service.Core.Domain.Models;
 using Service.UserInfo.Crud.Domain;
-using Service.UserInfo.Crud.Domain.Models;
 
 namespace Service.UserInfo.Crud.Modules
 {

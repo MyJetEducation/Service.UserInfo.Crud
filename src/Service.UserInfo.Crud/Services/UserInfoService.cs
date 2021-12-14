@@ -1,4 +1,6 @@
 ﻿using System.Threading.Tasks;
+using Service.Core.Domain.Models;
+using Service.Core.Grpc.Models;
 using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Models;
@@ -19,8 +21,8 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<UserInfoResponse> GetUserInfoByLoginAsync(UserInfoAuthRequest request)
 		{
-			string userNameHash = _encoderDecoder.Hash(request.UserName);
-			string passwordHash = _encoderDecoder.Hash(request.Password);
+			string userNameHash = GetHash(request.UserName);
+			string passwordHash = GetHash(request.Password);
 
 			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByLoginAsync(userNameHash, passwordHash);
 
@@ -49,9 +51,9 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<CommonGrpcResponse> CreateUserInfoAsync(UserInfoRegisterRequest request)
 		{
-			string userNameEncoded = PrepareUserName(request.UserName);
-			string userNameHash = _encoderDecoder.Hash(request.UserName);
-			string passwordHash = _encoderDecoder.Hash(request.Password);
+			string userNameHash = GetHash(request.UserName);
+			string passwordHash = GetHash(request.Password);
+			string userNameEncoded = _encoderDecoder.Encode(request.UserName.ToLower());
 
 			string hash = await _userInfoRepository.CreateUserInfoAsync(userNameEncoded, userNameHash, passwordHash);
 
@@ -62,15 +64,15 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<CommonGrpcResponse> ChangePasswordAsync(UserInfoChangePasswordRequest request)
 		{
-			string userNameHash = _encoderDecoder.Hash(request.Email);
-			string passwordHash = _encoderDecoder.Hash(request.Password);
+			string userNameHash = GetHash(request.UserName);
+			string passwordHash = GetHash(request.Password);
 
 			bool changed = await _userInfoRepository.ChangeUserInfoPasswordAsync(userNameHash, passwordHash);
 
 			return CommonGrpcResponse.Result(changed);
 		}
 
-		private string PrepareUserName(string userName) => _encoderDecoder.Encode(userName.ToLower());
+		private string GetHash(string value) => _encoderDecoder.Hash(value);
 
 		public async ValueTask<CommonGrpcResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request)
 		{
