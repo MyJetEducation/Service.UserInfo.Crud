@@ -21,14 +21,14 @@ namespace Service.UserInfo.Crud.Domain
 			_logger = logger;
 		}
 
-		public async ValueTask<UserInfoEntity> GetUserInfoByLoginAsync(string userNameHash, string passwordHash = null) =>
-			await GetUserInfoByNameAsync(userNameHash, passwordHash);
+		public async ValueTask<UserInfoEntity> GetUserInfoByLoginAsync(string userNameHash, string passwordHash = null) => 
+			await GetByName(GetContext(), userNameHash, passwordHash);
 
-		private async ValueTask<UserInfoEntity> GetUserInfoByNameAsync(string userNameHash, string passwordHash = null, bool onlyActive = true)
+		private async ValueTask<UserInfoEntity> GetByName(DatabaseContext context, string userNameHash, string passwordHash = null, bool onlyActive = true)
 		{
 			try
 			{
-				return await GetContext()
+				return await context
 					.UserInfos
 					.WhereIf(onlyActive, entity => entity.ActivationHash == null)
 					.WhereIf(passwordHash != null, entity => entity.PasswordHash == passwordHash)
@@ -42,11 +42,11 @@ namespace Service.UserInfo.Crud.Domain
 			return await ValueTask.FromResult<UserInfoEntity>(null);
 		}
 
-		private async ValueTask<UserInfoEntity> GetUserInfoById(Guid? userId, bool onlyActive = true)
+		private async ValueTask<UserInfoEntity> GetById(DatabaseContext context, Guid? userId, bool onlyActive = true)
 		{
 			try
 			{
-				return await GetContext()
+				return await context
 					.UserInfos
 					.WhereIf(onlyActive, entity => entity.ActivationHash == null)
 					.FirstOrDefaultAsync(entity => entity.Id == userId);
@@ -81,7 +81,9 @@ namespace Service.UserInfo.Crud.Domain
 			if (userId == null)
 				return false;
 
-			UserInfoEntity userInfo = await GetUserInfoById(userId);
+			DatabaseContext context = GetContext();
+
+			UserInfoEntity userInfo = await GetById(context, userId);
 			if (userInfo == null)
 				return false;
 
@@ -92,7 +94,7 @@ namespace Service.UserInfo.Crud.Domain
 
 			try
 			{
-				await UpdateUserInfo(GetContext(), userInfo);
+				await UpdateUserInfo(context, userInfo);
 
 				return true;
 			}
@@ -106,14 +108,14 @@ namespace Service.UserInfo.Crud.Domain
 
 		public async ValueTask<bool> CreateUserInfoAsync(string userNameEncoded, string userNameHash, string passwordHash, string activationHash)
 		{
-			UserInfoEntity userInfo = await GetUserInfoByNameAsync(userNameHash, onlyActive: false);
+			DatabaseContext context = GetContext();
+
+			UserInfoEntity userInfo = await GetByName(context, userNameHash, onlyActive: false);
 			if (userInfo is { ActivationHash: null })
 				return false;
 
 			try
 			{
-				DatabaseContext context = GetContext();
-
 				if (userInfo != null)
 				{
 					userInfo.UserName = userNameEncoded;
@@ -179,11 +181,11 @@ namespace Service.UserInfo.Crud.Domain
 
 		public async ValueTask<bool> ChangeUserInfoPasswordAsync(string userNameHash, string passwordHash)
 		{
-			UserInfoEntity userInfo = await GetUserInfoByLoginAsync(userNameHash);
+			DatabaseContext context = GetContext();
+
+			UserInfoEntity userInfo = await GetByName(context, userNameHash);
 			if (userInfo == null)
 				return false;
-
-			DatabaseContext context = GetContext();
 
 			userInfo.PasswordHash = passwordHash;
 
