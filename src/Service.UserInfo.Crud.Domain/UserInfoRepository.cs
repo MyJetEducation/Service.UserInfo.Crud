@@ -14,7 +14,6 @@ namespace Service.UserInfo.Crud.Domain
 	{
 		private readonly DbContextOptionsBuilder<DatabaseContext> _dbContextOptionsBuilder;
 		private readonly ILogger<UserInfoRepository> _logger;
-		private DatabaseContext _context;
 
 		public UserInfoRepository(DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder, ILogger<UserInfoRepository> logger)
 		{
@@ -93,13 +92,7 @@ namespace Service.UserInfo.Crud.Domain
 
 			try
 			{
-				_context = GetContext();
-
-				_context
-					.UserInfos
-					.Update(userInfo);
-
-				await _context.SaveChangesAsync();
+				await UpdateUserInfo(GetContext(), userInfo);
 
 				return true;
 			}
@@ -119,7 +112,7 @@ namespace Service.UserInfo.Crud.Domain
 
 			try
 			{
-				_context = GetContext();
+				DatabaseContext context = GetContext();
 
 				if (userInfo != null)
 				{
@@ -127,9 +120,12 @@ namespace Service.UserInfo.Crud.Domain
 					userInfo.PasswordHash = passwordHash;
 					userInfo.Role = UserRole.Default;
 					userInfo.ActivationHash = activationHash;
+
+					await UpdateUserInfo(context, userInfo);
 				}
 				else
-					await _context
+				{
+					await context
 						.UserInfos
 						.AddAsync(new UserInfoEntity
 						{
@@ -141,7 +137,8 @@ namespace Service.UserInfo.Crud.Domain
 							ActivationHash = activationHash
 						});
 
-				await _context.SaveChangesAsync();
+					await context.SaveChangesAsync();
+				}
 
 				return true;
 			}
@@ -157,9 +154,9 @@ namespace Service.UserInfo.Crud.Domain
 		{
 			try
 			{
-				_context = GetContext();
+				DatabaseContext context = GetContext();
 
-				UserInfoEntity userInfo = await _context
+				UserInfoEntity userInfo = await context
 					.UserInfos
 					.FirstOrDefaultAsync(entity => entity.ActivationHash == activationHash);
 
@@ -168,7 +165,7 @@ namespace Service.UserInfo.Crud.Domain
 
 				userInfo.ActivationHash = null;
 
-				await _context.SaveChangesAsync();
+				await UpdateUserInfo(context, userInfo);
 
 				return true;
 			}
@@ -186,11 +183,13 @@ namespace Service.UserInfo.Crud.Domain
 			if (userInfo == null)
 				return false;
 
+			DatabaseContext context = GetContext();
+
+			userInfo.PasswordHash = passwordHash;
+
 			try
 			{
-				userInfo.PasswordHash = passwordHash;
-
-				await _context.SaveChangesAsync();
+				await UpdateUserInfo(context, userInfo);
 
 				return true;
 			}
@@ -200,6 +199,15 @@ namespace Service.UserInfo.Crud.Domain
 			}
 
 			return false;
+		}
+
+		private static async Task UpdateUserInfo(DatabaseContext context, UserInfoEntity userInfo)
+		{
+			context
+				.UserInfos
+				.Update(userInfo);
+
+			await context.SaveChangesAsync();
 		}
 
 		private DatabaseContext GetContext() => DatabaseContext.Create(_dbContextOptionsBuilder);
