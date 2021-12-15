@@ -22,13 +22,16 @@ namespace Service.UserInfo.Crud.Domain
 			_logger = logger;
 		}
 
-		public async ValueTask<UserInfoEntity> GetUserInfoByLoginAsync(string userNameHash, string passwordHash = null)
+		public async ValueTask<UserInfoEntity> GetUserInfoByLoginAsync(string userNameHash, string passwordHash = null) =>
+			await GetUserInfoByNameAsync(userNameHash, passwordHash);
+
+		private async ValueTask<UserInfoEntity> GetUserInfoByNameAsync(string userNameHash, string passwordHash = null, bool onlyActive = true)
 		{
 			try
 			{
 				return await GetContext()
 					.UserInfos
-					.Where(entity => entity.ActivationHash == null)
+					.WhereIf(onlyActive, entity => entity.ActivationHash == null)
 					.WhereIf(passwordHash != null, entity => entity.PasswordHash == passwordHash)
 					.FirstOrDefaultAsync(entity => entity.UserNameHash == userNameHash);
 			}
@@ -108,23 +111,35 @@ namespace Service.UserInfo.Crud.Domain
 			return false;
 		}
 
-		public async ValueTask<bool> CreateUserInfoAsync(string userName, string userNameHash, string passwordHash, string activationHash)
+		public async ValueTask<bool> CreateUserInfoAsync(string userNameEncoded, string userNameHash, string passwordHash, string activationHash)
 		{
+			UserInfoEntity userInfo = await GetUserInfoByNameAsync(userNameHash, onlyActive: false);
+			if (userInfo is { ActivationHash: null })
+				return false;
+
 			try
 			{
 				_context = GetContext();
 
-				await _context
-					.UserInfos
-					.AddAsync(new UserInfoEntity
-					{
-						Id = Guid.NewGuid(),
-						UserName = userName,
-						UserNameHash = userNameHash,
-						PasswordHash = passwordHash,
-						Role = UserRole.Default,
-						ActivationHash = activationHash
-					});
+				if (userInfo != null)
+				{
+					userInfo.UserName = userNameEncoded;
+					userInfo.PasswordHash = passwordHash;
+					userInfo.Role = UserRole.Default;
+					userInfo.ActivationHash = activationHash;
+				}
+				else
+					await _context
+						.UserInfos
+						.AddAsync(new UserInfoEntity
+						{
+							Id = Guid.NewGuid(),
+							UserName = userNameEncoded,
+							UserNameHash = userNameHash,
+							PasswordHash = passwordHash,
+							Role = UserRole.Default,
+							ActivationHash = activationHash
+						});
 
 				await _context.SaveChangesAsync();
 

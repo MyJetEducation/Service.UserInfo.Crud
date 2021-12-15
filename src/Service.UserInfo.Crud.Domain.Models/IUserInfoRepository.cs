@@ -14,11 +14,11 @@ namespace Service.UserInfo.Crud.Domain.Models
 		/// <summary>
 		///     User registration begins (create not-active UserInfo entity)
 		/// </summary>
-		/// <param name="userName">email (encoded)</param>
+		/// <param name="userNameEncoded">email (encoded)</param>
 		/// <param name="userNameHash">email (hashed)</param>
 		/// <param name="passwordHash">password (hashed)</param>
 		/// <param name="activationHash">hash to activate user</param>
-		ValueTask<bool> CreateUserInfoAsync(string userName, string userNameHash, string passwordHash, string activationHash);
+		ValueTask<bool> CreateUserInfoAsync(string userNameEncoded, string userNameHash, string passwordHash, string activationHash);
 
 		/// <summary>
 		///     Confirm user registration (activate UserInfo entity)
