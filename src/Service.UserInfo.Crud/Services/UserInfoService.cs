@@ -55,11 +55,9 @@ namespace Service.UserInfo.Crud.Services
 			string passwordHash = GetHash(request.Password);
 			string userNameEncoded = _encoderDecoder.Encode(request.UserName.ToLower());
 
-			string hash = await _userInfoRepository.CreateUserInfoAsync(userNameEncoded, userNameHash, passwordHash);
+			bool created = await _userInfoRepository.CreateUserInfoAsync(userNameEncoded, userNameHash, passwordHash, request.ActivationHash);
 
-			//TODO: Here send message to user with hash
-
-			return CommonGrpcResponse.Result(hash != null);
+			return CommonGrpcResponse.Result(created);
 		}
 
 		public async ValueTask<CommonGrpcResponse> ChangePasswordAsync(UserInfoChangePasswordRequest request)
@@ -76,7 +74,7 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<CommonGrpcResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request)
 		{
-			bool confirmed = await _userInfoRepository.ConfirmUserInfoAsync(request.Hash);
+			bool confirmed = await _userInfoRepository.ConfirmUserInfoAsync(request.ActivationHash);
 
 			return CommonGrpcResponse.Result(confirmed);
 		}

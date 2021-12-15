@@ -10,5 +10,8 @@ namespace Service.UserInfo.Crud.Grpc.Models
 		
 		[DataMember(Order = 2)]
 		public string Password { get; set; }
+
+		[DataMember(Order = 3)]
+		public string ActivationHash { get; set; }
 	}
 }

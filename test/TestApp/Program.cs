@@ -52,7 +52,7 @@ namespace TestApp
 				.FirstOrDefault();
 			Console.WriteLine($"{Environment.NewLine}ActivationHash is {hash}");
 
-			CommonGrpcResponse activateResponse = await client.ConfirmUserInfoAsync(new UserInfoConfirmRequest {Hash = hash});
+			CommonGrpcResponse activateResponse = await client.ConfirmUserInfoAsync(new UserInfoConfirmRequest {ActivationHash = hash});
 			if (!activateResponse.IsSuccess)
 			{
 				Console.WriteLine("Error! Unable to execute ConfirmUserInfoAsync");

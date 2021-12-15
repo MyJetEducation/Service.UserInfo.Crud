@@ -17,15 +17,14 @@ namespace Service.UserInfo.Crud.Domain.Models
 		/// <param name="userName">email (encoded)</param>
 		/// <param name="userNameHash">email (hashed)</param>
 		/// <param name="passwordHash">password (hashed)</param>
-		/// <returns>Activation hash</returns>
-		ValueTask<string> CreateUserInfoAsync(string userName, string userNameHash, string passwordHash);
+		/// <param name="activationHash">hash to activate user</param>
+		ValueTask<bool> CreateUserInfoAsync(string userName, string userNameHash, string passwordHash, string activationHash);
 
 		/// <summary>
 		///     Confirm user registration (activate UserInfo entity)
 		/// </summary>
-		/// <param name="hash">Activation hash</param>
-		/// <returns></returns>
-		ValueTask<bool> ConfirmUserInfoAsync(string hash);
+		/// <param name="activationHash">hash to activate user</param>
+		ValueTask<bool> ConfirmUserInfoAsync(string activationHash);
 
 		ValueTask<bool> ChangeUserInfoPasswordAsync(string userNameHash, string passwordHash);
 	}

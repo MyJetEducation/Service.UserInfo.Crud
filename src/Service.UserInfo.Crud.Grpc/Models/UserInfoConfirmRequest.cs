@@ -6,6 +6,6 @@ namespace Service.UserInfo.Crud.Grpc.Models
 	public class UserInfoConfirmRequest
 	{
 		[DataMember(Order = 1)]
-		public string Hash { get; set; }
+		public string ActivationHash { get; set; }
 	}
 }

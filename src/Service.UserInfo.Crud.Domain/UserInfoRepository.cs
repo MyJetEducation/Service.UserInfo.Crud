@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Service.Core.Domain;
 using Service.Core.Domain.Extensions;
 using Service.Core.Domain.Models.Constants;
 using Service.UserInfo.Crud.Domain.Models;
@@ -109,13 +108,11 @@ namespace Service.UserInfo.Crud.Domain
 			return false;
 		}
 
-		public async ValueTask<string> CreateUserInfoAsync(string userName, string userNameHash, string passwordHash)
+		public async ValueTask<bool> CreateUserInfoAsync(string userName, string userNameHash, string passwordHash, string activationHash)
 		{
 			try
 			{
 				_context = GetContext();
-
-				string activationHash = HashGenerator.New;
 
 				await _context
 					.UserInfos
@@ -131,17 +128,17 @@ namespace Service.UserInfo.Crud.Domain
 
 				await _context.SaveChangesAsync();
 
-				return activationHash;
+				return true;
 			}
 			catch (Exception exception)
 			{
 				_logger.LogError(exception, exception.Message);
 			}
 
-			return await ValueTask.FromResult<string>(null);
+			return false;
 		}
 
-		public async ValueTask<bool> ConfirmUserInfoAsync(string hash)
+		public async ValueTask<bool> ConfirmUserInfoAsync(string activationHash)
 		{
 			try
 			{
@@ -149,7 +146,7 @@ namespace Service.UserInfo.Crud.Domain
 
 				UserInfoEntity userInfo = await _context
 					.UserInfos
-					.FirstOrDefaultAsync(entity => entity.ActivationHash == hash);
+					.FirstOrDefaultAsync(entity => entity.ActivationHash == activationHash);
 
 				if (userInfo == null)
 					return false;
