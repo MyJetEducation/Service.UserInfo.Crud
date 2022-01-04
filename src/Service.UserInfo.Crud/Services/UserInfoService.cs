@@ -21,8 +21,7 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<UserInfoResponse> GetUserInfoByLoginAsync(UserInfoAuthRequest request)
 		{
-			string userNameHash = GetHash(request.UserName);
-			string passwordHash = GetHash(request.Password);
+			(string userNameHash, string passwordHash) = GetHashes(request);
 
 			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByLoginAsync(userNameHash, passwordHash);
 
@@ -51,8 +50,7 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<CommonGrpcResponse> CreateUserInfoAsync(UserInfoRegisterRequest request)
 		{
-			string userNameHash = GetHash(request.UserName);
-			string passwordHash = GetHash(request.Password);
+			(string userNameHash, string passwordHash) = GetHashes(request);
 			string userNameEncoded = _encoderDecoder.Encode(request.UserName.ToLower());
 
 			bool created = await _userInfoRepository.CreateUserInfoAsync(userNameEncoded, userNameHash, passwordHash, request.ActivationHash);
@@ -62,13 +60,14 @@ namespace Service.UserInfo.Crud.Services
 
 		public async ValueTask<CommonGrpcResponse> ChangePasswordAsync(UserInfoChangePasswordRequest request)
 		{
-			string userNameHash = GetHash(request.UserName);
-			string passwordHash = GetHash(request.Password);
+			(string userNameHash, string passwordHash) = GetHashes(request);
 
 			bool changed = await _userInfoRepository.ChangeUserInfoPasswordAsync(userNameHash, passwordHash);
 
 			return CommonGrpcResponse.Result(changed);
 		}
+
+		private (string userNameHash, string passwordHash) GetHashes(IUserNamePasswordRequest request) => (GetHash(request.UserName.ToLower()), GetHash(request.Password));
 
 		private string GetHash(string value) => _encoderDecoder.Hash(value);
 
