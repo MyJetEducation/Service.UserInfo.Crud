@@ -18,7 +18,7 @@ namespace Service.UserInfo.Crud.Domain.Models
 		/// <param name="userNameHash">email (hashed)</param>
 		/// <param name="passwordHash">password (hashed)</param>
 		/// <param name="activationHash">hash to activate user</param>
-		ValueTask<bool> CreateUserInfoAsync(string userNameEncoded, string userNameHash, string passwordHash, string activationHash);
+		ValueTask<Guid?> CreateUserInfoAsync(string userNameEncoded, string userNameHash, string passwordHash, string activationHash);
 
 		/// <summary>
 		///     Confirm user registration (activate UserInfo entity)

@@ -30,14 +30,15 @@ namespace TestApp
 			const string password = "123";
 
 			Console.WriteLine($"{Environment.NewLine}Creating UserInfo {userName}.");
-			CommonGrpcResponse createResponse = await client.CreateUserInfoAsync(new UserInfoRegisterRequest {UserName = userName, Password = password});
-			if (!createResponse.IsSuccess)
+			UserIdResponse createResponse = await client.CreateUserInfoAsync(new UserInfoRegisterRequest {UserName = userName, Password = password});
+			Guid? userId = createResponse.UserId;
+			if (userId == null)
 			{
 				Console.WriteLine("Error! Unable to execute CreateUserInfoAsync");
 				Console.ReadLine();
 			}
 			else
-				Console.WriteLine("Success!");
+				Console.WriteLine($"Success created user with id {userId} !");
 
 			//Activate UserInfo
 			Console.WriteLine($"{Environment.NewLine}Activate UserInfo for {userName}");

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Service.Core.Domain.Models;
 using Service.Core.Grpc.Models;
 using Service.UserInfo.Crud.Domain.Models;
@@ -48,14 +49,14 @@ namespace Service.UserInfo.Crud.Services
 			return CommonGrpcResponse.Result(updated);
 		}
 
-		public async ValueTask<CommonGrpcResponse> CreateUserInfoAsync(UserInfoRegisterRequest request)
+		public async ValueTask<UserIdResponse> CreateUserInfoAsync(UserInfoRegisterRequest request)
 		{
 			(string userNameHash, string passwordHash) = GetHashes(request);
 			string userNameEncoded = _encoderDecoder.Encode(request.UserName.ToLower());
 
-			bool created = await _userInfoRepository.CreateUserInfoAsync(userNameEncoded, userNameHash, passwordHash, request.ActivationHash);
+			Guid? userId = await _userInfoRepository.CreateUserInfoAsync(userNameEncoded, userNameHash, passwordHash, request.ActivationHash);
 
-			return CommonGrpcResponse.Result(created);
+			return new UserIdResponse {UserId = userId};
 		}
 
 		public async ValueTask<CommonGrpcResponse> ChangePasswordAsync(UserInfoChangePasswordRequest request)

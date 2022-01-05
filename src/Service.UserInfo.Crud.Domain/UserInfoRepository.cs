@@ -21,7 +21,7 @@ namespace Service.UserInfo.Crud.Domain
 			_logger = logger;
 		}
 
-		public async ValueTask<UserInfoEntity> GetUserInfoByLoginAsync(string userNameHash, string passwordHash = null) => 
+		public async ValueTask<UserInfoEntity> GetUserInfoByLoginAsync(string userNameHash, string passwordHash = null) =>
 			await GetByName(GetContext(), userNameHash, passwordHash);
 
 		private async ValueTask<UserInfoEntity> GetByName(DatabaseContext context, string userNameHash, string passwordHash = null, bool onlyActive = true)
@@ -106,13 +106,13 @@ namespace Service.UserInfo.Crud.Domain
 			return false;
 		}
 
-		public async ValueTask<bool> CreateUserInfoAsync(string userNameEncoded, string userNameHash, string passwordHash, string activationHash)
+		public async ValueTask<Guid?> CreateUserInfoAsync(string userNameEncoded, string userNameHash, string passwordHash, string activationHash)
 		{
 			DatabaseContext context = GetContext();
 
 			UserInfoEntity userInfo = await GetByName(context, userNameHash, onlyActive: false);
 			if (userInfo is { ActivationHash: null })
-				return false;
+				return null;
 
 			try
 			{
@@ -124,32 +124,33 @@ namespace Service.UserInfo.Crud.Domain
 					userInfo.ActivationHash = activationHash;
 
 					await UpdateUserInfo(context, userInfo);
-				}
-				else
-				{
-					await context
-						.UserInfos
-						.AddAsync(new UserInfoEntity
-						{
-							Id = Guid.NewGuid(),
-							UserName = userNameEncoded,
-							UserNameHash = userNameHash,
-							PasswordHash = passwordHash,
-							Role = UserRole.Default,
-							ActivationHash = activationHash
-						});
 
-					await context.SaveChangesAsync();
+					return userInfo.Id;
 				}
+				var userId = Guid.NewGuid();
 
-				return true;
+				await context
+					.UserInfos
+					.AddAsync(new UserInfoEntity
+					{
+						Id = userId,
+						UserName = userNameEncoded,
+						UserNameHash = userNameHash,
+						PasswordHash = passwordHash,
+						Role = UserRole.Default,
+						ActivationHash = activationHash
+					});
+
+				await context.SaveChangesAsync();
+
+				return userId;
 			}
 			catch (Exception exception)
 			{
 				_logger.LogError(exception, exception.Message);
 			}
 
-			return false;
+			return null;
 		}
 
 		public async ValueTask<bool> ConfirmUserInfoAsync(string activationHash)
