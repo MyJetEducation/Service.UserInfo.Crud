@@ -3,8 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Service.Core.Domain.Extensions;
-using Service.Core.Domain.Models.Constants;
+using Service.Core.Client.Constants;
+using Service.Core.Client.Extensions;
 using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Postgres;
 

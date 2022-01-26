@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Service.Core.Domain.Models;
-using Service.Core.Grpc.Models;
+using Service.Core.Client.Models;
+using Service.Core.Client.Services;
 using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Models;
