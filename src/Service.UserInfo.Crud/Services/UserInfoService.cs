@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Service.Core.Client.Models;
 using Service.Core.Client.Services;
-using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Models;
 using Service.UserInfo.Crud.Mappers;
+using Service.UserInfo.Crud.Postgres.Models;
 
 namespace Service.UserInfo.Crud.Services
 {

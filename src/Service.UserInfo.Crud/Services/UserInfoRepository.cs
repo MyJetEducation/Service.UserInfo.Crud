@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Service.Core.Client.Constants;
 using Service.Core.Client.Extensions;
-using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Postgres;
+using Service.UserInfo.Crud.Postgres.Models;
 
-namespace Service.UserInfo.Crud.Domain
+namespace Service.UserInfo.Crud.Services
 {
 	public class UserInfoRepository : IUserInfoRepository
 	{

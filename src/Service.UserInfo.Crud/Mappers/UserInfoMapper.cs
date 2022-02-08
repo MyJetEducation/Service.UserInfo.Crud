@@ -1,6 +1,6 @@
 ﻿using Service.Core.Client.Services;
-using Service.UserInfo.Crud.Domain.Models;
 using Service.UserInfo.Crud.Grpc.Models;
+using Service.UserInfo.Crud.Postgres.Models;
 
 namespace Service.UserInfo.Crud.Mappers
 {

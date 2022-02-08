@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyJetWallet.Sdk.Postgres;
 using MyJetWallet.Sdk.Service;
-using Service.UserInfo.Crud.Domain.Models;
+using Service.UserInfo.Crud.Postgres.Models;
 
 namespace Service.UserInfo.Crud.Postgres
 {

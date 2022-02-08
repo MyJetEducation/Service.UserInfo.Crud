@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Service.UserInfo.Crud.Postgres.Models;
 
-namespace Service.UserInfo.Crud.Domain.Models
+namespace Service.UserInfo.Crud.Services
 {
 	public interface IUserInfoRepository
 	{
