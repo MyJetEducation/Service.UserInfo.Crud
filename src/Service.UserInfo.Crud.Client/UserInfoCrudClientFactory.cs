@@ -1,16 +1,17 @@
 ﻿using JetBrains.Annotations;
-using MyJetWallet.Sdk.Grpc;
+using Microsoft.Extensions.Logging;
+using Service.Grpc;
 using Service.UserInfo.Crud.Grpc;
 
 namespace Service.UserInfo.Crud.Client
 {
-    [UsedImplicitly]
-    public class UserInfoCrudClientFactory: MyGrpcClientFactory
-    {
-        public UserInfoCrudClientFactory(string grpcServiceUrl) : base(grpcServiceUrl)
-        {
-        }
+	[UsedImplicitly]
+	public class UserInfoCrudClientFactory : GrpcClientFactory
+	{
+		public UserInfoCrudClientFactory(string grpcServiceUrl, ILogger logger) : base(grpcServiceUrl, logger)
+		{
+		}
 
-        public IUserInfoService GetUserInfoService() => CreateGrpcService<IUserInfoService>();
-    }
+		public IGrpcServiceProxy<IUserInfoService> GetUserInfoService() => CreateGrpcService<IUserInfoService>();
+	}
 }

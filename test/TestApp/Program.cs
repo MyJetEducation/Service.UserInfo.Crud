@@ -3,13 +3,15 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ProtoBuf.Grpc.Client;
+using Microsoft.Extensions.Logging;
 using Service.Core.Client.Models;
 using Service.Core.Client.Services;
+using Service.Grpc;
 using Service.UserInfo.Crud.Client;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Models;
 using Service.UserInfo.Crud.Postgres;
+using GrpcClientFactory = ProtoBuf.Grpc.Client.GrpcClientFactory;
 
 namespace TestApp
 {
@@ -18,19 +20,21 @@ namespace TestApp
 		private static async Task Main()
 		{
 			GrpcClientFactory.AllowUnencryptedHttp2 = true;
+			ILogger<Program> logger = LoggerFactory.Create(x => x.AddConsole()).CreateLogger<Program>();
 
 			Console.Write("Press enter to start");
 			Console.ReadLine();
 
-			var factory = new UserInfoCrudClientFactory("http://localhost:5001");
-			IUserInfoService client = factory.GetUserInfoService();
+			var factory = new UserInfoCrudClientFactory("http://localhost:5001", logger);
+			IGrpcServiceProxy<IUserInfoService> client = factory.GetUserInfoService();
+			IUserInfoService clientService = client.Service;
 
 			//Creating UserInfo
 			string userName = $"user-{DateTime.UtcNow:HHmmss}";
 			const string password = "123";
 
 			Console.WriteLine($"{Environment.NewLine}Creating UserInfo {userName}.");
-			UserIdResponse createResponse = await client.CreateUserInfoAsync(new UserInfoRegisterRequest {UserName = userName, Password = password});
+			UserIdResponse createResponse = await clientService.CreateUserInfoAsync(new UserInfoRegisterRequest {UserName = userName, Password = password});
 			Guid? userId = createResponse.UserId;
 			if (userId == null)
 			{
@@ -53,7 +57,7 @@ namespace TestApp
 				.FirstOrDefault();
 			Console.WriteLine($"{Environment.NewLine}ActivationHash is {hash}");
 
-			CommonGrpcResponse activateResponse = await client.ConfirmUserInfoAsync(new UserInfoConfirmRequest {ActivationHash = hash});
+			CommonGrpcResponse activateResponse = await clientService.ConfirmUserInfoAsync(new UserInfoConfirmRequest {ActivationHash = hash});
 			if (!activateResponse.IsSuccess)
 			{
 				Console.WriteLine("Error! Unable to execute ConfirmUserInfoAsync");
@@ -64,13 +68,13 @@ namespace TestApp
 
 			//Retrieving UserInfo
 			Console.WriteLine($"{Environment.NewLine}Retrieving (1) UserInfo by name for {userName}");
-			UserInfoResponse getResponse1 = await client.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = userName});
+			UserInfoResponse getResponse1 = await clientService.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = userName});
 			LogData(getResponse1);
 
 			//Updating token
 			Console.WriteLine($"{Environment.NewLine}Updating token info for {userName}.");
 			var refreshToken = Guid.NewGuid().ToString();
-			CommonGrpcResponse updateResponse = await client.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
+			CommonGrpcResponse updateResponse = await clientService.UpdateUserTokenInfoAsync(new UserNewTokenInfoRequest
 			{
 				UserId = getResponse1.UserInfo.UserId,
 				JwtToken = Guid.NewGuid().ToString(),
@@ -87,7 +91,7 @@ namespace TestApp
 
 				//Retrieving UserInfo
 				Console.WriteLine($"{Environment.NewLine}Retrieving (2) UserInfo by name and password {userName}");
-				UserInfoResponse getResponse2 = await client.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = userName, Password = password});
+				UserInfoResponse getResponse2 = await clientService.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = userName, Password = password});
 				LogData(getResponse2);
 
 				if (getResponse2.UserInfo == null)
@@ -95,7 +99,7 @@ namespace TestApp
 
 				//Retrieving UserInfo
 				Console.WriteLine($"{Environment.NewLine}Retrieving (3) UserInfo by refreshToken {refreshToken}");
-				UserInfoResponse getResponse3 = await client.GetUserInfoByTokenAsync(new UserInfoTokenRequest {RefreshToken = refreshToken});
+				UserInfoResponse getResponse3 = await clientService.GetUserInfoByTokenAsync(new UserInfoTokenRequest {RefreshToken = refreshToken});
 				LogData(getResponse3);
 
 				if (getResponse3.UserInfo == null)
@@ -103,7 +107,7 @@ namespace TestApp
 
 				//Change user password
 				Console.WriteLine($"{Environment.NewLine}ChangePassword");
-				CommonGrpcResponse getResponse4 = await client.ChangePasswordAsync(new UserInfoChangePasswordRequest {UserName = userName, Password = "newPassword"});
+				CommonGrpcResponse getResponse4 = await clientService.ChangePasswordAsync(new UserInfoChangePasswordRequest {UserName = userName, Password = "newPassword"});
 				LogData(getResponse4);
 
 				if (!getResponse4.IsSuccess)
