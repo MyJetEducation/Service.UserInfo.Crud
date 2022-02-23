@@ -25,5 +25,8 @@ namespace Service.UserInfo.Crud.Grpc
 
 		[OperationContract]
 		ValueTask<CommonGrpcResponse> ChangePasswordAsync(UserInfoChangePasswordRequest request);
+
+		[OperationContract]
+		ValueTask<CommonGrpcResponse> ChangeUserNameAsync(ChangeUserNameRequest request);
 	}
 }

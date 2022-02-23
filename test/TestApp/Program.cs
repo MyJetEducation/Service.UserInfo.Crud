@@ -37,12 +37,9 @@ namespace TestApp
 			UserIdResponse createResponse = await clientService.CreateUserInfoAsync(new UserInfoRegisterRequest {UserName = userName, Password = password});
 			Guid? userId = createResponse.UserId;
 			if (userId == null)
-			{
-				Console.WriteLine("Error! Unable to execute CreateUserInfoAsync");
-				Console.ReadLine();
-			}
-			else
-				Console.WriteLine($"Success created user with id {userId} !");
+				throw new Exception("Error! Unable to execute CreateUserInfoAsync");
+
+			Console.WriteLine($"Success created user with id {userId} !");
 
 			//Activate UserInfo
 			Console.WriteLine($"{Environment.NewLine}Activate UserInfo for {userName}");
@@ -59,12 +56,9 @@ namespace TestApp
 
 			CommonGrpcResponse activateResponse = await clientService.ConfirmUserInfoAsync(new UserInfoConfirmRequest {ActivationHash = hash});
 			if (!activateResponse.IsSuccess)
-			{
-				Console.WriteLine("Error! Unable to execute ConfirmUserInfoAsync");
-				Console.ReadLine();
-			}
-			else
-				Console.WriteLine("Activated!");
+				throw new Exception("Error! Unable to execute ConfirmUserInfoAsync");
+			
+			Console.WriteLine("Activated!");
 
 			//Retrieving UserInfo
 			Console.WriteLine($"{Environment.NewLine}Retrieving (1) UserInfo by name for {userName}");
@@ -84,35 +78,50 @@ namespace TestApp
 			});
 
 			if (!updateResponse.IsSuccess)
-				Console.WriteLine("Error! Unable to execute UpdateUserTokenInfoAsync");
-			else
-			{
-				Console.WriteLine("Success!");
+				throw new Exception("Error! Unable to execute UpdateUserTokenInfoAsync");
 
-				//Retrieving UserInfo
-				Console.WriteLine($"{Environment.NewLine}Retrieving (2) UserInfo by name and password {userName}");
-				UserInfoResponse getResponse2 = await clientService.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = userName, Password = password});
-				LogData(getResponse2);
+			Console.WriteLine("Success!");
 
-				if (getResponse2.UserInfo == null)
-					Console.WriteLine("Error! Unable to execute (2) GetUserInfoByLoginAsync");
+			//Retrieving UserInfo
+			Console.WriteLine($"{Environment.NewLine}Retrieving (2) UserInfo by name and password {userName}");
+			UserInfoResponse getResponse2 = await clientService.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = userName, Password = password});
+			LogData(getResponse2);
 
-				//Retrieving UserInfo
-				Console.WriteLine($"{Environment.NewLine}Retrieving (3) UserInfo by refreshToken {refreshToken}");
-				UserInfoResponse getResponse3 = await clientService.GetUserInfoByTokenAsync(new UserInfoTokenRequest {RefreshToken = refreshToken});
-				LogData(getResponse3);
+			if (getResponse2.UserInfo == null)
+				throw new Exception("Error! Unable to execute (2) GetUserInfoByLoginAsync");
 
-				if (getResponse3.UserInfo == null)
-					Console.WriteLine("Error! Unable to execute (3) GetUserInfoByTokenAsync");
+			//Retrieving UserInfo
+			Console.WriteLine($"{Environment.NewLine}Retrieving (3) UserInfo by refreshToken {refreshToken}");
+			UserInfoResponse getResponse3 = await clientService.GetUserInfoByTokenAsync(new UserInfoTokenRequest {RefreshToken = refreshToken});
+			LogData(getResponse3);
 
-				//Change user password
-				Console.WriteLine($"{Environment.NewLine}ChangePassword");
-				CommonGrpcResponse getResponse4 = await clientService.ChangePasswordAsync(new UserInfoChangePasswordRequest {UserName = userName, Password = "newPassword"});
-				LogData(getResponse4);
+			if (getResponse3.UserInfo == null)
+				throw new Exception("Error! Unable to execute (3) GetUserInfoByTokenAsync");
 
-				if (!getResponse4.IsSuccess)
-					Console.WriteLine("Error! Unable to execute (3) ChangePasswordAsync");
-			}
+			//Change user password
+			Console.WriteLine($"{Environment.NewLine}ChangePassword");
+			CommonGrpcResponse getResponse4 = await clientService.ChangePasswordAsync(new UserInfoChangePasswordRequest {UserName = userName, Password = "newPassword"});
+			LogData(getResponse4);
+
+			if (!getResponse4.IsSuccess)
+				throw new Exception("Error! Unable to execute (3) ChangePasswordAsync");
+
+			//Change user login
+			Console.WriteLine($"{Environment.NewLine}ChangeLogin");
+			string newUserName = $"newuser-{DateTime.UtcNow:HHmmss}";
+			CommonGrpcResponse getResponse5 = await clientService.ChangeUserNameAsync(new ChangeUserNameRequest { UserId = userId, Email = newUserName });
+			LogData(getResponse5);
+
+			if (!getResponse5.IsSuccess)
+				throw new Exception("Error! Unable to execute ChangeLoginAsync");
+
+			//Retrieving UserInfo
+			Console.WriteLine($"{Environment.NewLine}Retrieving (4) UserInfo by new userName {newUserName}");
+			UserInfoResponse getResponse6 = await clientService.GetUserInfoByLoginAsync(new UserInfoAuthRequest { UserName = newUserName });
+			LogData(getResponse6);
+
+			if (getResponse6.UserInfo?.UserName != newUserName)
+				throw new Exception("Can't change user login!");
 
 			Console.ReadLine();
 		}

@@ -68,15 +68,26 @@ namespace Service.UserInfo.Crud.Services
 			return CommonGrpcResponse.Result(changed);
 		}
 
-		private (string userNameHash, string passwordHash) GetHashes(IUserNamePasswordRequest request) => (GetHash(request.UserName.ToLower()), GetHash(request.Password));
-
-		private string GetHash(string value) => _encoderDecoder.Hash(value);
-
 		public async ValueTask<CommonGrpcResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request)
 		{
 			bool confirmed = await _userInfoRepository.ConfirmUserInfoAsync(request.ActivationHash);
 
 			return CommonGrpcResponse.Result(confirmed);
 		}
+
+		public async ValueTask<CommonGrpcResponse> ChangeUserNameAsync(ChangeUserNameRequest request)
+		{
+			string email = request.Email;
+			string userNameHash = GetHash(email.ToLower());
+			string userNameEncoded = _encoderDecoder.Encode(email.ToLower());
+
+			bool changed = await _userInfoRepository.ChangeUserNameAsync(request.UserId, userNameEncoded, userNameHash);
+
+			return CommonGrpcResponse.Result(changed);
+		}
+
+		private (string userNameHash, string passwordHash) GetHashes(IUserNamePasswordRequest request) => (GetHash(request.UserName.ToLower()), GetHash(request.Password));
+
+		private string GetHash(string value) => _encoderDecoder.Hash(value);
 	}
 }

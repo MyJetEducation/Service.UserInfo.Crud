@@ -28,5 +28,7 @@ namespace Service.UserInfo.Crud.Services
 		ValueTask<bool> ConfirmUserInfoAsync(string activationHash);
 
 		ValueTask<bool> ChangeUserInfoPasswordAsync(string userNameHash, string passwordHash);
+
+		ValueTask<bool> ChangeUserNameAsync(Guid? userId, string userNameEncoded, string userNameHash);
 	}
 }

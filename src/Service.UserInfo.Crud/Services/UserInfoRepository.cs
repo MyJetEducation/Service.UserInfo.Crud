@@ -85,7 +85,11 @@ namespace Service.UserInfo.Crud.Services
 
 			UserInfoEntity userInfo = await GetById(context, userId);
 			if (userInfo == null)
+			{
+				_logger.LogError("Error while update user token! User with id: {id} not found in repository.", userId);
+
 				return false;
+			}
 
 			userInfo.JwtToken = token;
 			userInfo.RefreshToken = refreshToken;
@@ -112,7 +116,11 @@ namespace Service.UserInfo.Crud.Services
 
 			UserInfoEntity userInfo = await GetByName(context, userNameHash, onlyActive: false);
 			if (userInfo is { ActivationHash: null })
+			{
+				_logger.LogError("Error while create user! User already registered and activated (userNameHash: {userNameHash}).", userNameHash);
+
 				return null;
+			}
 
 			try
 			{
@@ -164,7 +172,11 @@ namespace Service.UserInfo.Crud.Services
 					.FirstOrDefaultAsync(entity => entity.ActivationHash == activationHash);
 
 				if (userInfo == null)
+				{
+					_logger.LogError("Error while confirm user! Can't find user with activation hash: {hash}.", activationHash);
+
 					return false;
+				}
 
 				userInfo.ActivationHash = null;
 
@@ -186,12 +198,48 @@ namespace Service.UserInfo.Crud.Services
 
 			UserInfoEntity userInfo = await GetByName(context, userNameHash);
 			if (userInfo == null)
+			{
+				_logger.LogError("Error while change user info! Can't find user with userNameHash: {userNameHash}.", userNameHash);
+
 				return false;
+			}
 
 			userInfo.PasswordHash = passwordHash;
 
 			try
 			{
+				await UpdateUserInfo(context, userInfo);
+
+				return true;
+			}
+			catch (Exception exception)
+			{
+				_logger.LogError(exception, exception.Message);
+			}
+
+			return false;
+		}
+
+		public async ValueTask<bool> ChangeUserNameAsync(Guid? userId, string userNameEncoded, string userNameHash)
+		{
+			try
+			{
+				DatabaseContext context = GetContext();
+
+				UserInfoEntity userInfo = await context
+					.UserInfos
+					.FirstOrDefaultAsync(entity => entity.Id == userId);
+
+				if (userInfo == null)
+				{
+					_logger.LogError("Error while change user name! Can't find user with id: {userId}.", userId);
+
+					return false;
+				}
+
+				userInfo.UserName = userNameEncoded;
+				userInfo.UserNameHash = userNameHash;
+
 				await UpdateUserInfo(context, userInfo);
 
 				return true;
