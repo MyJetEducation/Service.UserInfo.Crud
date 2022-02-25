@@ -12,14 +12,6 @@
 
 		public string Role { get; set; }
 
-		public string JwtToken { get; set; }
-
-		public string RefreshToken { get; set; }
-
-		public DateTime? RefreshTokenExpires { get; set; }
-
-		public string IpAddress { get; set; }
-
-		public string ActivationHash { get; set; }
+		public bool? Active { get; set; }
 	}
 }

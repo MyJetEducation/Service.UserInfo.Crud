@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,101 +20,18 @@ namespace Service.UserInfo.Crud.Services
 			_logger = logger;
 		}
 
-		public async ValueTask<UserInfoEntity> GetUserInfoByLoginAsync(string userNameHash, string passwordHash = null) =>
+		public async ValueTask<UserInfoEntity> GetByLoginAsync(string userNameHash, string passwordHash = null) =>
 			await GetByName(GetContext(), userNameHash, passwordHash);
 
-		private async ValueTask<UserInfoEntity> GetByName(DatabaseContext context, string userNameHash, string passwordHash = null, bool onlyActive = true)
-		{
-			try
-			{
-				return await context
-					.UserInfos
-					.WhereIf(onlyActive, entity => entity.ActivationHash == null)
-					.WhereIf(passwordHash != null, entity => entity.PasswordHash == passwordHash)
-					.FirstOrDefaultAsync(entity => entity.UserNameHash == userNameHash);
-			}
-			catch (Exception exception)
-			{
-				_logger.LogError(exception, exception.Message);
-			}
+		public async ValueTask<UserInfoEntity> GetByIdAsync(Guid? userId) =>
+			await GetById(GetContext(), userId);
 
-			return await ValueTask.FromResult<UserInfoEntity>(null);
-		}
-
-		private async ValueTask<UserInfoEntity> GetById(DatabaseContext context, Guid? userId, bool onlyActive = true)
-		{
-			try
-			{
-				return await context
-					.UserInfos
-					.WhereIf(onlyActive, entity => entity.ActivationHash == null)
-					.FirstOrDefaultAsync(entity => entity.Id == userId);
-			}
-			catch (Exception exception)
-			{
-				_logger.LogError(exception, exception.Message);
-			}
-
-			return await ValueTask.FromResult<UserInfoEntity>(null);
-		}
-
-		public async ValueTask<UserInfoEntity> GetUserInfoByTokenAsync(string refreshToken)
-		{
-			try
-			{
-				return await GetContext()
-					.UserInfos
-					.Where(entity => entity.ActivationHash == null)
-					.FirstOrDefaultAsync(entity => entity.RefreshToken == refreshToken);
-			}
-			catch (Exception exception)
-			{
-				_logger.LogError(exception, exception.Message);
-			}
-
-			return await ValueTask.FromResult<UserInfoEntity>(null);
-		}
-
-		public async ValueTask<bool> UpdateUserTokenInfoAsync(Guid? userId, string token, string refreshToken, DateTime? refreshTokenExpires, string ipAddress)
-		{
-			if (userId == null)
-				return false;
-
-			DatabaseContext context = GetContext();
-
-			UserInfoEntity userInfo = await GetById(context, userId);
-			if (userInfo == null)
-			{
-				_logger.LogError("Error while update user token! User with id: {id} not found in repository.", userId);
-
-				return false;
-			}
-
-			userInfo.JwtToken = token;
-			userInfo.RefreshToken = refreshToken;
-			userInfo.RefreshTokenExpires = refreshTokenExpires;
-			userInfo.IpAddress = ipAddress;
-
-			try
-			{
-				await UpdateUserInfo(context, userInfo);
-
-				return true;
-			}
-			catch (Exception exception)
-			{
-				_logger.LogError(exception, exception.Message);
-			}
-
-			return false;
-		}
-
-		public async ValueTask<Guid?> CreateUserInfoAsync(string userNameEncoded, string userNameHash, string passwordHash, string activationHash)
+		public async ValueTask<Guid?> CreateAsync(string userNameEncoded, string userNameHash, string passwordHash)
 		{
 			DatabaseContext context = GetContext();
 
 			UserInfoEntity userInfo = await GetByName(context, userNameHash, onlyActive: false);
-			if (userInfo is { ActivationHash: null })
+			if (userInfo is { Active: true })
 			{
 				_logger.LogError("Error while create user! User already registered and activated (userNameHash: {userNameHash}).", userNameHash);
 
@@ -129,7 +45,7 @@ namespace Service.UserInfo.Crud.Services
 					userInfo.UserName = userNameEncoded;
 					userInfo.PasswordHash = passwordHash;
 					userInfo.Role = UserRole.Default;
-					userInfo.ActivationHash = activationHash;
+					userInfo.Active = null;
 
 					await UpdateUserInfo(context, userInfo);
 
@@ -145,8 +61,7 @@ namespace Service.UserInfo.Crud.Services
 						UserName = userNameEncoded,
 						UserNameHash = userNameHash,
 						PasswordHash = passwordHash,
-						Role = UserRole.Default,
-						ActivationHash = activationHash
+						Role = UserRole.Default
 					});
 
 				await context.SaveChangesAsync();
@@ -161,38 +76,36 @@ namespace Service.UserInfo.Crud.Services
 			return null;
 		}
 
-		public async ValueTask<bool> ConfirmUserInfoAsync(string activationHash)
+		public async ValueTask<string> ActivateAsync(Guid? userId)
 		{
 			try
 			{
 				DatabaseContext context = GetContext();
 
-				UserInfoEntity userInfo = await context
-					.UserInfos
-					.FirstOrDefaultAsync(entity => entity.ActivationHash == activationHash);
+				UserInfoEntity userInfo = await GetById(context, userId, false);
 
 				if (userInfo == null)
 				{
-					_logger.LogError("Error while confirm user! Can't find user with activation hash: {hash}.", activationHash);
+					_logger.LogError("Error while confirm user! Can't find user with id: {userId}.", userId);
 
-					return false;
+					return await ValueTask.FromResult<string>(null);
 				}
 
-				userInfo.ActivationHash = null;
+				userInfo.Active = true;
 
 				await UpdateUserInfo(context, userInfo);
 
-				return true;
+				return userInfo.UserName;
 			}
 			catch (Exception exception)
 			{
 				_logger.LogError(exception, exception.Message);
 			}
 
-			return false;
+			return await ValueTask.FromResult<string>(null);
 		}
 
-		public async ValueTask<bool> ChangeUserInfoPasswordAsync(string userNameHash, string passwordHash)
+		public async ValueTask<bool> ChangePasswordAsync(string userNameHash, string passwordHash)
 		{
 			DatabaseContext context = GetContext();
 
@@ -226,9 +139,7 @@ namespace Service.UserInfo.Crud.Services
 			{
 				DatabaseContext context = GetContext();
 
-				UserInfoEntity userInfo = await context
-					.UserInfos
-					.FirstOrDefaultAsync(entity => entity.Id == userId);
+				UserInfoEntity userInfo = await GetById(context, userId);
 
 				if (userInfo == null)
 				{
@@ -250,6 +161,41 @@ namespace Service.UserInfo.Crud.Services
 			}
 
 			return false;
+		}
+
+		private async ValueTask<UserInfoEntity> GetByName(DatabaseContext context, string userNameHash, string passwordHash = null, bool onlyActive = true)
+		{
+			try
+			{
+				return await context
+					.UserInfos
+					.WhereIf(onlyActive, entity => entity.Active == true)
+					.WhereIf(passwordHash != null, entity => entity.PasswordHash == passwordHash)
+					.FirstOrDefaultAsync(entity => entity.UserNameHash == userNameHash);
+			}
+			catch (Exception exception)
+			{
+				_logger.LogError(exception, exception.Message);
+			}
+
+			return await ValueTask.FromResult<UserInfoEntity>(null);
+		}
+
+		private async ValueTask<UserInfoEntity> GetById(DatabaseContext context, Guid? userId, bool onlyActive = true)
+		{
+			try
+			{
+				return await context
+					.UserInfos
+					.WhereIf(onlyActive, entity => entity.Active == true)
+					.FirstOrDefaultAsync(entity => entity.Id == userId);
+			}
+			catch (Exception exception)
+			{
+				_logger.LogError(exception, exception.Message);
+			}
+
+			return await ValueTask.FromResult<UserInfoEntity>(null);
 		}
 
 		private static async Task UpdateUserInfo(DatabaseContext context, UserInfoEntity userInfo)

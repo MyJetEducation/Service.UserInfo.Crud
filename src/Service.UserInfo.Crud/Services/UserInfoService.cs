@@ -24,7 +24,7 @@ namespace Service.UserInfo.Crud.Services
 		{
 			(string userNameHash, string passwordHash) = GetHashes(request);
 
-			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByLoginAsync(userNameHash, passwordHash);
+			UserInfoEntity userInfo = await _userInfoRepository.GetByLoginAsync(userNameHash, passwordHash);
 
 			return new UserInfoResponse
 			{
@@ -32,21 +32,14 @@ namespace Service.UserInfo.Crud.Services
 			};
 		}
 
-		public async ValueTask<UserInfoResponse> GetUserInfoByTokenAsync(UserInfoTokenRequest request)
+		public async ValueTask<UserInfoResponse> GetUserInfoByIdAsync(UserInfoRequest request)
 		{
-			UserInfoEntity userInfo = await _userInfoRepository.GetUserInfoByTokenAsync(request.RefreshToken);
+			UserInfoEntity userInfo = await _userInfoRepository.GetByIdAsync(request.UserId);
 
 			return new UserInfoResponse
 			{
 				UserInfo = userInfo?.ToGrpcModel(_encoderDecoder)
 			};
-		}
-
-		public async ValueTask<CommonGrpcResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request)
-		{
-			bool updated = await _userInfoRepository.UpdateUserTokenInfoAsync(request.UserId, request.JwtToken, request.RefreshToken, request.RefreshTokenExpires, request.IpAddress);
-
-			return CommonGrpcResponse.Result(updated);
 		}
 
 		public async ValueTask<UserIdResponse> CreateUserInfoAsync(UserInfoRegisterRequest request)
@@ -54,7 +47,7 @@ namespace Service.UserInfo.Crud.Services
 			(string userNameHash, string passwordHash) = GetHashes(request);
 			string userNameEncoded = _encoderDecoder.Encode(request.UserName.ToLower());
 
-			Guid? userId = await _userInfoRepository.CreateUserInfoAsync(userNameEncoded, userNameHash, passwordHash, request.ActivationHash);
+			Guid? userId = await _userInfoRepository.CreateAsync(userNameEncoded, userNameHash, passwordHash);
 
 			return new UserIdResponse {UserId = userId};
 		}
@@ -63,16 +56,19 @@ namespace Service.UserInfo.Crud.Services
 		{
 			(string userNameHash, string passwordHash) = GetHashes(request);
 
-			bool changed = await _userInfoRepository.ChangeUserInfoPasswordAsync(userNameHash, passwordHash);
+			bool changed = await _userInfoRepository.ChangePasswordAsync(userNameHash, passwordHash);
 
 			return CommonGrpcResponse.Result(changed);
 		}
 
-		public async ValueTask<CommonGrpcResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request)
+		public async ValueTask<ActivateUserInfoResponse> ActivateUserInfoAsync(UserInfoActivateRequest request)
 		{
-			bool confirmed = await _userInfoRepository.ConfirmUserInfoAsync(request.ActivationHash);
+			string userName = await _userInfoRepository.ActivateAsync(request.UserId);
 
-			return CommonGrpcResponse.Result(confirmed);
+			return new ActivateUserInfoResponse
+			{
+				UserName = userName
+			};
 		}
 
 		public async ValueTask<CommonGrpcResponse> ChangeUserNameAsync(ChangeUserNameRequest request)

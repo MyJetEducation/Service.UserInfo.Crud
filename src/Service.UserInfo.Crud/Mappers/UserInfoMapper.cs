@@ -10,10 +10,7 @@ namespace Service.UserInfo.Crud.Mappers
 		{
 			UserId = userInfo.Id,
 			UserName = encoderDecoder.Decode(userInfo.UserName),
-			Role = userInfo.Role,
-			RefreshToken = userInfo.RefreshToken,
-			RefreshTokenExpires = userInfo.RefreshTokenExpires,
-			IpAddress = userInfo.IpAddress
+			Role = userInfo.Role
 		};
 	}
 }

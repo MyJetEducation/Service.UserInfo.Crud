@@ -1,11 +1,12 @@
+using System;
 using System.Runtime.Serialization;
 
 namespace Service.UserInfo.Crud.Grpc.Models
 {
 	[DataContract]
-	public class UserInfoConfirmRequest
+	public class UserInfoRequest
 	{
 		[DataMember(Order = 1)]
-		public string ActivationHash { get; set; }
+		public Guid? UserId { get; set; }
 	}
 }

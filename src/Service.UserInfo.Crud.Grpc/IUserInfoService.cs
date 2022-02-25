@@ -12,16 +12,13 @@ namespace Service.UserInfo.Crud.Grpc
 		ValueTask<UserInfoResponse> GetUserInfoByLoginAsync(UserInfoAuthRequest request);
 
 		[OperationContract]
-		ValueTask<UserInfoResponse> GetUserInfoByTokenAsync(UserInfoTokenRequest request);
-
-		[OperationContract]
-		ValueTask<CommonGrpcResponse> UpdateUserTokenInfoAsync(UserNewTokenInfoRequest request);
+		ValueTask<UserInfoResponse> GetUserInfoByIdAsync(UserInfoRequest request);
 
 		[OperationContract]
 		ValueTask<UserIdResponse> CreateUserInfoAsync(UserInfoRegisterRequest request);
 
 		[OperationContract]
-		ValueTask<CommonGrpcResponse> ConfirmUserInfoAsync(UserInfoConfirmRequest request);
+		ValueTask<ActivateUserInfoResponse> ActivateUserInfoAsync(UserInfoActivateRequest request);
 
 		[OperationContract]
 		ValueTask<CommonGrpcResponse> ChangePasswordAsync(UserInfoChangePasswordRequest request);
