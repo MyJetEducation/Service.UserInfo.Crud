@@ -67,7 +67,7 @@ namespace Service.UserInfo.Crud.Services
 
 			return new ActivateUserInfoResponse
 			{
-				UserName = userName
+				UserName = _encoderDecoder.Decode(userName)
 			};
 		}
 
