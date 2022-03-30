@@ -20,6 +20,24 @@ namespace Service.UserInfo.Crud.Services
 			_encoderDecoder = encoderDecoder;
 		}
 
+		public async ValueTask<UserInfoForAuthRespose> GetUserInfoForAuth(UserInfoAuthRequest request)
+		{
+			(string userNameHash, string passwordHash) = GetHashes(request);
+
+			UserInfoEntity userInfo = await _userInfoRepository.GetByLoginAsync(userNameHash);
+
+			var result = new UserInfoForAuthRespose
+			{
+				UserNotFound = userInfo == null,
+				InvalidPassword = userInfo?.PasswordHash != passwordHash
+			};
+
+			if (result.IsValid())
+				result.UserInfo = userInfo.ToGrpcModel(_encoderDecoder);
+
+			return result;
+		}
+
 		public async ValueTask<UserInfoResponse> GetUserInfoByLoginAsync(UserInfoAuthRequest request)
 		{
 			(string userNameHash, string passwordHash) = GetHashes(request);
