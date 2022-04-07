@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.3.0" />
-    <PackageReference Include="MyJetEducation.Service.Core.Client" Version="1.0.33" />
+    <PackageReference Include="MyJetEducation.Service.Core.Client" Version="1.0.35" />
     <PackageReference Include="SimpleTrading.Common" Version="1.0.32" />
     <PackageReference Include="MyJetEducation.Service.Grpc" Version="1.0.7" />
     <PackageReference Include="MyJetWallet.Sdk.GrpcMetrics" Version="2.0.4" />
